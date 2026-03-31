@@ -1,0 +1,16 @@
+/*
+Theme Name: Effe Plast 2030
+Theme URI: https://effeplast.ma/
+Author: Jules
+Author URI: https://effeplast.ma/
+Description: Thème WordPress sur-mesure ultra-moderne pour Effe Plast. Compatible avec Elementor et optimisé pour la plasturgie.
+Version: 1.0.0
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: effeplast
+Tags: custom-background, custom-logo, custom-menu, featured-images, threaded-comments, translation-ready, elementor
+*/
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
