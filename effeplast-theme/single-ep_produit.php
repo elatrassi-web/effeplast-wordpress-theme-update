@@ -134,16 +134,20 @@ get_header();
                         <hr class="border-gray-100 mb-8">
 
                         <!-- Quantity and Actions -->
-                        <div class="flex flex-col sm:flex-row gap-4 mb-8">
+                        <div class="flex flex-col sm:flex-row gap-4 mb-8 product-row">
                             <div class="flex items-center border-2 border-gray-100 rounded-xl overflow-hidden bg-gray-50 h-14 focus-within:border-ep-cyan focus-within:ring-1 focus-within:ring-ep-cyan transition-all w-32 flex-shrink-0" x-data="{ qty: 1 }">
                                 <button type="button" class="w-10 h-full flex items-center justify-center text-gray-500 hover:text-ep-cyan focus:outline-none" @click="if(qty > 1) qty--"><i class="fas fa-minus text-sm"></i></button>
-                                <input type="number" name="quantity" min="1" x-model="qty" class="w-full h-full text-center text-ep-blue-night font-bold text-lg bg-transparent border-none focus:ring-0 p-0 appearance-none">
+                                <input type="number" name="quantity" min="1" x-model="qty" class="ep-qty-input w-full h-full text-center text-ep-blue-night font-bold text-lg bg-transparent border-none focus:ring-0 p-0 appearance-none">
                                 <button type="button" class="w-10 h-full flex items-center justify-center text-gray-500 hover:text-ep-cyan focus:outline-none" @click="qty++"><i class="fas fa-plus text-sm"></i></button>
                             </div>
 
-                            <a href="/devis" class="flex-grow flex items-center justify-center gap-3 bg-gradient-to-r from-ep-blue-night to-ep-primary hover:from-ep-cyan hover:to-blue-600 text-white font-bold text-lg h-14 rounded-xl shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 hover:-translate-y-1 transition-all">
+                            <?php $image_src = get_the_post_thumbnail_url(get_the_ID(), 'thumbnail'); ?>
+                            <button class="ep-add-to-quote-btn flex-grow flex items-center justify-center gap-3 bg-gradient-to-r from-ep-blue-night to-ep-primary hover:from-ep-cyan hover:to-blue-600 text-white font-bold text-lg h-14 rounded-xl shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 hover:-translate-y-1 transition-all"
+                                    data-product-id="<?php the_ID(); ?>"
+                                    data-product-name="<?php echo esc_attr(get_the_title()); ?>"
+                                    data-product-image="<?php echo esc_url($image_src); ?>">
                                 <i class="fas fa-file-invoice"></i> Ajouter au devis
-                            </a>
+                            </button>
                         </div>
 
                         <!-- Trust badges -->

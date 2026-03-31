@@ -79,11 +79,15 @@
                 <?php endif; ?>
 
                 <!-- Call to Action / Devis Button -->
-                <div class="hidden md:flex items-center">
+                <div class="hidden md:flex items-center gap-4">
+                    <a href="/panier-devis" class="relative text-ep-blue-night hover:text-ep-cyan transition-colors" title="Voir ma demande de devis">
+                        <i class="fas fa-file-invoice text-xl"></i>
+                        <span class="ep-quote-count absolute -top-2 -right-2 w-5 h-5 bg-ep-cyan text-white text-[10px] font-bold rounded-full flex items-center justify-center hidden">0</span>
+                    </a>
                     <a href="/devis" class="group relative px-6 py-2.5 font-semibold text-white bg-ep-blue-night rounded-full overflow-hidden shadow-lg hover:shadow-cyan-500/30 transition-all duration-300">
                         <span class="absolute inset-0 w-full h-full bg-gradient-to-r from-ep-blue-night to-ep-cyan opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
                         <span class="relative flex items-center gap-2">
-                            <i class="fas fa-clipboard-list text-sm"></i> Demander un Devis
+                            <i class="fas fa-clipboard-list text-sm"></i> Nos Produits Devis
                         </span>
                     </a>
                 </div>

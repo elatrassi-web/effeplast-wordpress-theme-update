@@ -331,3 +331,112 @@ function effeplast_save_product_metaboxes( $post_id ) {
     }
 }
 add_action( 'save_post', 'effeplast_save_product_metaboxes' );
+
+/**
+ * Enqueue JS for Quote System
+ */
+function effeplast_enqueue_quote_system() {
+    wp_enqueue_script( 'effeplast-quote', get_template_directory_uri() . '/assets/js/quote-system.js', array(), '1.0.0', true );
+}
+add_action( 'wp_enqueue_scripts', 'effeplast_enqueue_quote_system' );
+
+/**
+ * Handle Quote Form Submission
+ */
+function ep_handle_submit_quote() {
+    // Verify nonce
+    if ( ! isset( $_POST['ep_quote_nonce'] ) || ! wp_verify_nonce( $_POST['ep_quote_nonce'], 'ep_submit_quote_nonce' ) ) {
+        wp_die( 'La vérification de sécurité a échoué. Veuillez réessayer.' );
+    }
+
+    // Retrieve and sanitize fields
+    $company = sanitize_text_field( $_POST['company'] );
+    $name = sanitize_text_field( $_POST['contact_name'] );
+    $email = sanitize_email( $_POST['email'] );
+    $phone = sanitize_text_field( $_POST['phone'] );
+    $message = sanitize_textarea_field( $_POST['message'] );
+
+    // Retrieve cart data (JSON string)
+    $quote_data_json = stripslashes( $_POST['quote_data'] );
+    $quote_items = json_decode( $quote_data_json, true );
+
+    if ( ! is_array( $quote_items ) || empty( $quote_items ) ) {
+        wp_die( 'Votre demande de devis est vide.' );
+    }
+
+    // Build the email content
+    $to_admin = 'effeplast.kenitra@gmail.com';
+    $subject_admin = 'Nouvelle Demande de Devis - ' . $company;
+
+    $headers = array('Content-Type: text/html; charset=UTF-8');
+    $headers[] = 'From: ' . $name . ' <' . $email . '>';
+
+    $body_admin = '<h2>Nouvelle demande de devis depuis le site web Effe Plast</h2>';
+    $body_admin .= '<h3>Coordonnées du client :</h3>';
+    $body_admin .= '<p><strong>Société :</strong> ' . $company . '</p>';
+    $body_admin .= '<p><strong>Nom :</strong> ' . $name . '</p>';
+    $body_admin .= '<p><strong>Email :</strong> ' . $email . '</p>';
+    $body_admin .= '<p><strong>Téléphone :</strong> ' . $phone . '</p>';
+    $body_admin .= '<p><strong>Message/Notes :</strong><br>' . nl2br($message) . '</p>';
+
+    $body_admin .= '<h3>Produits demandés :</h3>';
+    $body_admin .= '<table style="width: 100%; border-collapse: collapse;">';
+    $body_admin .= '<thead><tr style="background-color: #f3f4f6; text-align: left;">';
+    $body_admin .= '<th style="padding: 10px; border: 1px solid #ddd;">Référence</th>';
+    $body_admin .= '<th style="padding: 10px; border: 1px solid #ddd;">Produit</th>';
+    $body_admin .= '<th style="padding: 10px; border: 1px solid #ddd;">Quantité</th>';
+    $body_admin .= '</tr></thead><tbody>';
+
+    foreach ( $quote_items as $item ) {
+        $body_admin .= '<tr>';
+        $body_admin .= '<td style="padding: 10px; border: 1px solid #ddd;">EP-' . esc_html($item['id']) . '</td>';
+        $body_admin .= '<td style="padding: 10px; border: 1px solid #ddd;">' . esc_html($item['name']) . '</td>';
+        $body_admin .= '<td style="padding: 10px; border: 1px solid #ddd; text-align: center;">' . esc_html($item['quantity']) . '</td>';
+        $body_admin .= '</tr>';
+    }
+    $body_admin .= '</tbody></table>';
+
+    // Send Email to Admin
+    $mail_sent = wp_mail( $to_admin, $subject_admin, $body_admin, $headers );
+
+    // Optional: Send auto-reply to client
+    $subject_client = 'Confirmation de votre demande de devis - Effe Plast';
+    $body_client = '<h2>Bonjour ' . $name . ',</h2>';
+    $body_client .= '<p>Nous avons bien reçu votre demande de devis concernant les produits suivants. Notre équipe commerciale vous contactera très rapidement avec une offre personnalisée.</p>';
+    $body_client .= $body_admin; // Reuse the table
+    $body_client .= '<p>Cordialement,<br>L\'équipe Effe Plast<br>05 37 36 08 20</p>';
+
+    wp_mail( $email, $subject_client, $body_client, array('Content-Type: text/html; charset=UTF-8') );
+
+    // Redirect to a success page or back to the quote page with a success query arg
+    $redirect_url = add_query_arg( 'quote_success', '1', home_url('/panier-devis') );
+    wp_redirect( $redirect_url );
+    exit();
+}
+add_action( 'admin_post_nopriv_ep_submit_quote', 'ep_handle_submit_quote' );
+add_action( 'admin_post_ep_submit_quote', 'ep_handle_submit_quote' );
+
+/**
+ * Notice for successful quote submission and clearing cart via JS
+ */
+function ep_quote_success_notice() {
+    if ( isset( $_GET['quote_success'] ) && $_GET['quote_success'] == '1' ) {
+        echo '<div class="fixed top-4 right-4 z-50 bg-green-500 text-white px-6 py-4 rounded-xl shadow-lg border border-green-600 flex items-center gap-3 animate-bounce">
+                <i class="fas fa-check-circle text-2xl"></i>
+                <div>
+                    <h4 class="font-bold">Demande envoyée !</h4>
+                    <p class="text-sm">Nous vous recontacterons très vite.</p>
+                </div>
+              </div>';
+        // Clear local storage cart since quote was submitted
+        echo '<script>
+            document.addEventListener("DOMContentLoaded", function() {
+                if(typeof QuoteSystem !== "undefined") {
+                    QuoteSystem.clearCart();
+                    setTimeout(function(){ window.location.href = "' . esc_url(home_url('/')) . '"; }, 4000);
+                }
+            });
+        </script>';
+    }
+}
+add_action( 'wp_footer', 'ep_quote_success_notice' );

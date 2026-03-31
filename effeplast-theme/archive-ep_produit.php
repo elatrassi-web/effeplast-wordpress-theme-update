@@ -128,9 +128,16 @@ get_header();
                                                 <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Sur Devis</span>
                                             <?php endif; ?>
                                         </div>
-                                        <a href="/devis" class="w-10 h-10 rounded-full bg-ep-cyan/10 text-ep-cyan flex items-center justify-center hover:bg-ep-cyan hover:text-white transition-colors duration-300 tooltip-trigger" title="Ajouter au devis">
+                                        <?php
+                                        $image_src = get_the_post_thumbnail_url(get_the_ID(), 'thumbnail');
+                                        ?>
+                                        <button class="ep-add-to-quote-btn w-10 h-10 rounded-full bg-ep-cyan/10 text-ep-cyan flex items-center justify-center hover:bg-ep-cyan hover:text-white transition-colors duration-300 tooltip-trigger"
+                                                title="Ajouter au devis"
+                                                data-product-id="<?php the_ID(); ?>"
+                                                data-product-name="<?php echo esc_attr(get_the_title()); ?>"
+                                                data-product-image="<?php echo esc_url($image_src); ?>">
                                             <i class="fas fa-plus"></i>
-                                        </a>
+                                        </button>
                                     </div>
                                 </div>
                             </article>
