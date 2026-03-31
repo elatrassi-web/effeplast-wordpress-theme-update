@@ -440,3 +440,125 @@ function ep_quote_success_notice() {
     }
 }
 add_action( 'wp_footer', 'ep_quote_success_notice' );
+
+/**
+ * Enqueue Swiper JS and CSS for the Product Slider Page
+ */
+function ep_enqueue_swiper_assets() {
+    if ( is_page_template( 'page-produits-slider.php' ) ) {
+        // Swiper CSS
+        wp_enqueue_style( 'swiper-css', 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css', array(), '11.0.5' );
+        // Swiper JS
+        wp_enqueue_script( 'swiper-js', 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js', array(), '11.0.5', true );
+        // Custom Slider Script
+        wp_enqueue_script( 'ep-product-slider', get_template_directory_uri() . '/assets/js/product-slider.js', array('jquery', 'swiper-js'), '1.0.0', true );
+
+        // Pass AJAX URL to JS
+        wp_localize_script( 'ep-product-slider', 'ep_ajax_obj', array(
+            'ajaxurl' => admin_url( 'admin-ajax.php' )
+        ) );
+    }
+}
+add_action( 'wp_enqueue_scripts', 'ep_enqueue_swiper_assets' );
+
+/**
+ * AJAX Handler to Fetch Products for Slider
+ */
+function ep_fetch_slider_products() {
+    $category = isset( $_POST['category'] ) ? sanitize_text_field( $_POST['category'] ) : '';
+    $search = isset( $_POST['search'] ) ? sanitize_text_field( $_POST['search'] ) : '';
+
+    $args = array(
+        'post_type'      => 'ep_produit',
+        'posts_per_page' => 15,
+        'post_status'    => 'publish',
+    );
+
+    if ( ! empty( $category ) && $category !== 'all' ) {
+        $args['tax_query'] = array(
+            array(
+                'taxonomy' => 'ep_product_cat',
+                'field'    => 'slug',
+                'terms'    => $category,
+            ),
+        );
+    }
+
+    if ( ! empty( $search ) ) {
+        $args['s'] = $search;
+    }
+
+    $products_query = new WP_Query( $args );
+
+    if ( $products_query->have_posts() ) {
+        ob_start();
+        while ( $products_query->have_posts() ) {
+            $products_query->the_post();
+
+            $price = get_post_meta( get_the_ID(), '_ep_product_price', true );
+            $image_src = get_the_post_thumbnail_url(get_the_ID(), 'large');
+            if(!$image_src) $image_src = 'https://via.placeholder.com/600x800?text=EP';
+
+            $terms = get_the_terms( get_the_ID(), 'ep_product_cat' );
+            $cat_name = $terms && ! is_wp_error( $terms ) ? $terms[0]->name : '';
+
+            // Output the slide HTML
+            ?>
+            <div class="swiper-slide group">
+                <div class="relative w-full h-full bg-white rounded-[2rem] overflow-hidden shadow-xl transition-all duration-500 transform group-hover:-translate-y-4 group-hover:shadow-cyan-500/40">
+                    <a href="<?php the_permalink(); ?>" class="block h-3/5 bg-gray-50 relative p-8 flex items-center justify-center overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-t from-ep-blue-night/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <img src="<?php echo esc_url($image_src); ?>" alt="<?php the_title_attribute(); ?>" class="max-h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-700">
+                        <?php if($cat_name): ?>
+                            <span class="absolute top-4 right-4 bg-white/90 backdrop-blur text-xs font-bold text-ep-blue-night px-3 py-1 rounded-full shadow-sm">
+                                <?php echo esc_html($cat_name); ?>
+                            </span>
+                        <?php endif; ?>
+                    </a>
+
+                    <div class="h-2/5 p-8 flex flex-col justify-between relative z-10 bg-white border-t border-gray-100">
+                        <div>
+                            <span class="text-xs text-gray-400 font-bold tracking-widest uppercase mb-1 block">Ref: EP-<?php echo get_the_ID(); ?></span>
+                            <h2 class="text-2xl font-black text-ep-blue-night mb-2 line-clamp-2 leading-tight group-hover:text-ep-cyan transition-colors">
+                                <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
+                            </h2>
+                        </div>
+
+                        <div class="flex items-center justify-between mt-auto">
+                            <?php if ( $price ) : ?>
+                                <span class="text-2xl font-black text-gray-800 tracking-tight"><?php echo esc_html( $price ); ?> <span class="text-sm text-gray-400 font-medium">MAD</span></span>
+                            <?php else : ?>
+                                <span class="text-sm font-bold text-gray-500 uppercase tracking-widest">Sur Devis</span>
+                            <?php endif; ?>
+
+                            <!-- Integration with quote system JS -->
+                            <button class="ep-add-to-quote-btn w-12 h-12 rounded-full bg-ep-blue-night text-white flex items-center justify-center hover:bg-ep-cyan hover:scale-110 transition-all duration-300 shadow-md tooltip-trigger focus:outline-none"
+                                    title="Ajouter au devis"
+                                    data-product-id="<?php the_ID(); ?>"
+                                    data-product-name="<?php echo esc_attr(get_the_title()); ?>"
+                                    data-product-image="<?php echo esc_url($image_src); ?>">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <?php
+        }
+        $html = ob_get_clean();
+        wp_send_json_success( array( 'html' => $html ) );
+    } else {
+        // No products found slide
+        $html = '<div class="w-full flex items-center justify-center h-full">
+                    <div class="text-center p-12 bg-white/10 backdrop-blur-md rounded-[2rem] border border-white/20">
+                        <i class="fas fa-search text-6xl text-ep-cyan opacity-50 mb-4"></i>
+                        <h3 class="text-2xl font-bold text-white mb-2">Aucun produit trouvé</h3>
+                        <p class="text-blue-200 font-light">Essayez de modifier vos filtres ou votre recherche.</p>
+                    </div>
+                 </div>';
+        wp_send_json_success( array( 'html' => $html ) );
+    }
+    wp_die();
+}
+add_action( 'wp_ajax_ep_fetch_slider_products', 'ep_fetch_slider_products' );
+add_action( 'wp_ajax_nopriv_ep_fetch_slider_products', 'ep_fetch_slider_products' );
