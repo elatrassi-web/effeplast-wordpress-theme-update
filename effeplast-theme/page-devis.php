@@ -44,18 +44,19 @@ get_header();
             <div class="quote-interface max-w-6xl mx-auto">
 
                 <!-- Formulaire de filtres avec soumission GET -->
-                <form id="quote-filter-form" method="GET" action="<?php echo esc_url( home_url( '/devis' ) ); ?>" class="space-y-5 mb-6">
+                <form id="quote-filter-form" method="GET" action="<?php echo esc_url( get_permalink() ); ?>" class="space-y-5 mb-6">
                     <!-- Keywords Search -->
                     <div class="flex flex-col gap-2">
-                        <label for="s" class="text-sm font-bold text-gray-700 tracking-wide">Mots-clés</label>
+                        <label for="sq" class="text-sm font-bold text-gray-700 tracking-wide">Mots-clés</label>
                         <div class="flex gap-2">
                             <div class="relative flex-grow">
-                                <input type="text" name="s" id="s" value="<?php echo get_search_query(); ?>" placeholder="Ex: 1L Javel..." class="w-full px-4 py-3 bg-white border border-gray-200 hover:border-ep-cyan focus:border-ep-cyan rounded-lg text-gray-700 font-medium focus:outline-none focus:ring-1 focus:ring-ep-cyan transition-all shadow-sm">
+                                <?php $search_val = isset($_GET['sq']) ? sanitize_text_field($_GET['sq']) : ''; ?>
+                                <input type="text" name="sq" id="sq" value="<?php echo esc_attr($search_val); ?>" placeholder="Ex: 1L Javel..." class="w-full px-4 py-3 bg-white border border-gray-200 hover:border-ep-cyan focus:border-ep-cyan rounded-lg text-gray-700 font-medium focus:outline-none focus:ring-1 focus:ring-ep-cyan transition-all shadow-sm">
                             </div>
                             <button type="submit" class="w-12 h-auto flex-shrink-0 bg-ep-blue-night hover:bg-ep-primary text-white rounded-lg transition-colors flex items-center justify-center shadow-md">
                                 <i class="fas fa-search"></i>
                             </button>
-                            <a href="<?php echo esc_url( home_url( '/devis' ) ); ?>" class="w-12 h-auto flex-shrink-0 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-lg transition-colors flex items-center justify-center shadow-sm" title="Réinitialiser">
+                            <a href="<?php echo esc_url( get_permalink() ); ?>" class="w-12 h-auto flex-shrink-0 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-lg transition-colors flex items-center justify-center shadow-sm" title="Réinitialiser">
                                 <i class="fas fa-sync-alt"></i>
                             </a>
                         </div>
@@ -106,7 +107,7 @@ get_header();
 
                 <?php
                 // Configuration de la requête pour les produits
-                $paged = ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : 1;
+                $paged = ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : ( ( get_query_var( 'page' ) ) ? get_query_var( 'page' ) : 1 );
                 $args = array(
                     'post_type'      => 'ep_produit',
                     'posts_per_page' => 20,
@@ -114,9 +115,9 @@ get_header();
                     'post_status'    => 'publish',
                 );
 
-                // Filtre par recherche
-                if ( isset($_GET['s']) && !empty($_GET['s']) ) {
-                    $args['s'] = sanitize_text_field($_GET['s']);
+                // Filtre par recherche personnalisé (sq)
+                if ( isset($_GET['sq']) && !empty($_GET['sq']) ) {
+                    $args['s'] = sanitize_text_field($_GET['sq']); // Utilise l'argument de recherche natif de WP_Query, mais alimenté par notre paramètre 'sq'
                 }
 
                 // Filtre par catégorie
