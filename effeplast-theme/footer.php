@@ -30,11 +30,11 @@
 
                 <!-- Brand Info -->
                 <div class="col-span-1 md:col-span-2 lg:col-span-1 space-y-6">
-                    <div class="flex items-center gap-3">
-                        <span class="w-10 h-10 rounded-xl bg-gradient-to-br from-ep-blue-night to-ep-cyan flex items-center justify-center text-white text-xl shadow-lg shadow-cyan-500/20">
-                            <i class="fas fa-cube"></i>
-                        </span>
-                        <h3 class="text-2xl font-bold text-white tracking-tight">EFFE<span class="text-ep-cyan">PLAST</span></h3>
+                    <div class="mb-4">
+                        <a href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home" class="inline-block">
+                            <!-- Use an inverted version if the logo is dark text on dark background, otherwise filter brightness or keep it as is. Assuming standard logo works on dark mode or has white version -->
+                            <img src="<?php echo esc_url( home_url( '/wp-content/uploads/2026/03/cropped-Capture_d_ecran_2025-02-17_103238-removebg-preview.webp' ) ); ?>" alt="Effe Plast Logo" class="h-12 w-auto object-contain brightness-0 invert opacity-90 hover:opacity-100 transition-opacity">
+                        </a>
                     </div>
                     <p class="text-sm text-gray-400 leading-relaxed font-light">
                         Expert en plasturgie depuis 1998, créant des flacons et bidons innovants qui répondent parfaitement aux besoins de chaque industrie, avec un savoir-faire inégalé au Maroc.

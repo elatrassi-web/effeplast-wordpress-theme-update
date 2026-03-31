@@ -42,12 +42,9 @@
                             <?php the_custom_logo(); ?>
                         </div>
                     <?php else : ?>
-                        <h1 class="text-2xl font-bold text-ep-blue-night tracking-tight">
-                            <a href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home" class="flex items-center gap-2">
-                                <span class="w-8 h-8 rounded-lg bg-gradient-to-br from-ep-blue-night to-ep-primary flex items-center justify-center text-white text-lg"><i class="fas fa-cube"></i></span>
-                                EFFE<span class="text-ep-cyan">PLAST</span>
-                            </a>
-                        </h1>
+                        <a href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home" class="block transition-transform duration-300 hover:scale-105">
+                            <img src="<?php echo esc_url( home_url( '/wp-content/uploads/2026/03/cropped-Capture_d_ecran_2025-02-17_103238-removebg-preview.webp' ) ); ?>" alt="Effe Plast Logo" class="h-10 md:h-12 w-auto object-contain">
+                        </a>
                     <?php endif; ?>
                 </div>
 
