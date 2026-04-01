@@ -389,7 +389,11 @@ function ep_handle_submit_quote() {
     // Insert the post into the database
     $post_id = wp_insert_post( $post_data );
 
+    $token = '';
     if ( ! is_wp_error( $post_id ) ) {
+        // Generate a secure token for receipt retrieval
+        $token = wp_generate_password( 20, false );
+
         // Save the client details as post meta
         update_post_meta( $post_id, '_ep_devis_company', $company );
         update_post_meta( $post_id, '_ep_devis_name', $name );
@@ -402,6 +406,9 @@ function ep_handle_submit_quote() {
 
         // Mark status as 'Nouveau'
         update_post_meta( $post_id, '_ep_devis_status', 'nouveau' );
+
+        // Save token
+        update_post_meta( $post_id, '_ep_devis_token', $token );
     }
 
     // --- 2. ENVOI DES EMAILS (Boutique et Client) ---
@@ -451,8 +458,14 @@ function ep_handle_submit_quote() {
     wp_mail( $email, $subject_client, $body_client, array('Content-Type: text/html; charset=UTF-8') );
 
     // --- 3. REDIRECTION ---
-    // Redirect back to the quote page with a success query arg
-    $redirect_url = add_query_arg( 'quote_success', '1', home_url('/panier-devis') );
+    // Redirect back to the quote page with a success query arg and token
+    $redirect_args = array(
+        'quote_success' => '1',
+    );
+    if ( !empty($token) ) {
+        $redirect_args['token'] = $token;
+    }
+    $redirect_url = add_query_arg( $redirect_args, home_url('/panier-devis') );
     wp_redirect( $redirect_url );
     exit();
 }
@@ -464,19 +477,18 @@ add_action( 'admin_post_ep_submit_quote', 'ep_handle_submit_quote' );
  */
 function ep_quote_success_notice() {
     if ( isset( $_GET['quote_success'] ) && $_GET['quote_success'] == '1' ) {
-        echo '<div class="fixed top-4 right-4 z-50 bg-green-500 text-white px-6 py-4 rounded-xl shadow-lg border border-green-600 flex items-center gap-3 animate-bounce">
+        echo '<div class="fixed top-4 right-4 z-50 bg-green-500 text-white px-6 py-4 rounded-xl shadow-lg border border-green-600 flex items-center gap-3 animate-bounce ep-hide-print">
                 <i class="fas fa-check-circle text-2xl"></i>
                 <div>
                     <h4 class="font-bold">Demande envoyée !</h4>
                     <p class="text-sm">Nous vous recontacterons très vite.</p>
                 </div>
               </div>';
-        // Clear local storage cart since quote was submitted
+        // Clear local storage cart since quote was submitted, but DO NOT redirect if token is present (we want them to see the receipt)
         echo '<script>
             document.addEventListener("DOMContentLoaded", function() {
                 if(typeof QuoteSystem !== "undefined") {
                     QuoteSystem.clearCart();
-                    setTimeout(function(){ window.location.href = "' . esc_url(home_url('/')) . '"; }, 4000);
                 }
             });
         </script>';
@@ -854,10 +866,43 @@ function ep_render_single_devis_view($post_id) {
         .ep-prod-table th { background: #f6f7f7; font-weight: 600; color: #1d2327; }
     </style>
 
-    <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+    <style>
+        /* Print Styles for Admin Devis View */
+        @media print {
+            #adminmenumain, #wpadminbar, .notice, .ep-hide-print { display: none !important; }
+            #wpcontent, #wpbody-content { margin-left: 0 !important; padding: 0 !important; background: white !important; }
+            .ep-admin-card { border: none !important; box-shadow: none !important; padding: 0 !important; margin-bottom: 30px !important; }
+            .wrap { max-width: 100% !important; margin: 0 !important; }
+            body { background: white !important; }
+        }
+    </style>
+
+    <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;" class="ep-hide-print">
         <a href="?page=ep-devis-dashboard" class="button">&laquo; Retour à la liste</a>
-        <span style="font-size: 16px; color: #646970;">Reçu le : <strong><?php echo get_the_date('d F Y', $post) . ' à ' . get_the_time('H:i', $post); ?></strong></span>
+        <div>
+            <button type="button" onclick="window.print()" class="button" style="margin-right: 10px;">
+                <span class="dashicons dashicons-printer" style="margin-top: 4px; margin-right: 5px;"></span> Imprimer le devis
+            </button>
+            <span style="font-size: 16px; color: #646970;">Reçu le : <strong><?php echo get_the_date('d F Y', $post) . ' à ' . get_the_time('H:i', $post); ?></strong></span>
+        </div>
     </div>
+
+    <!-- Header specifically for printing -->
+    <div style="display: none; padding-bottom: 20px; margin-bottom: 20px; border-bottom: 2px solid #00B4D8;" class="ep-print-header">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+            <div>
+                <h1 style="margin: 0; font-size: 24px; color: #1d2327;">DEMANDE DE DEVIS #EP-<?php echo $post_id; ?></h1>
+                <p style="margin: 5px 0 0 0; color: #646970;">Reçu le : <?php echo get_the_date('d/m/Y', $post); ?></p>
+            </div>
+            <div style="text-align: right;">
+                <strong style="font-size: 18px;">Effe Plast</strong><br>
+                <span style="color: #646970;">Kénitra, Maroc</span>
+            </div>
+        </div>
+    </div>
+    <style>
+        @media print { .ep-print-header { display: block !important; } }
+    </style>
 
     <div class="ep-admin-grid">
         <!-- Client Details -->
@@ -937,7 +982,7 @@ function ep_render_single_devis_view($post_id) {
         <?php endif; ?>
     </div>
 
-    <div style="margin-top: 30px; text-align: right;">
+    <div style="margin-top: 30px; text-align: right;" class="ep-hide-print">
         <a href="mailto:<?php echo esc_attr($email); ?>?subject=Suite à votre demande de devis sur Effe Plast" class="button button-primary button-large" style="background: #00B4D8; border-color: #00B4D8;">
             <span class="dashicons dashicons-email" style="margin-top: 4px; margin-right: 5px;"></span> Répondre au client
         </a>

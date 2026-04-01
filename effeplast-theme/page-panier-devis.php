@@ -28,6 +28,142 @@ get_header();
     <!-- Main Content Area -->
     <div class="container mx-auto px-4 lg:px-8 -mt-10 relative z-30">
 
+        <?php
+        // Check if we are displaying a receipt after successful submission
+        $is_receipt = isset($_GET['quote_success']) && $_GET['quote_success'] == '1' && isset($_GET['token']);
+
+        if ( $is_receipt ) {
+            $token = sanitize_text_field($_GET['token']);
+            // Find the quote by token
+            $quote_query = new WP_Query(array(
+                'post_type' => 'ep_commande_devis',
+                'meta_key' => '_ep_devis_token',
+                'meta_value' => $token,
+                'posts_per_page' => 1
+            ));
+
+            if ( $quote_query->have_posts() ) {
+                $quote_query->the_post();
+                $post_id = get_the_ID();
+                $company = get_post_meta($post_id, '_ep_devis_company', true);
+                $name = get_post_meta($post_id, '_ep_devis_name', true);
+                $email = get_post_meta($post_id, '_ep_devis_email', true);
+                $phone = get_post_meta($post_id, '_ep_devis_phone', true);
+                $message = get_post_meta($post_id, '_ep_devis_message', true);
+                $items = json_decode(get_post_meta($post_id, '_ep_devis_items', true), true);
+                ?>
+                <!-- Client Receipt View -->
+                <div class="max-w-4xl mx-auto">
+                    <div class="bg-white rounded-[2rem] shadow-xl border border-gray-100 overflow-hidden mb-8" id="ep-receipt-document">
+                        <!-- Receipt Header -->
+                        <div class="bg-ep-blue-night p-8 text-white flex justify-between items-center border-b-[6px] border-ep-cyan">
+                            <div>
+                                <h2 class="text-3xl font-black mb-1">REÇU DE DEMANDE</h2>
+                                <p class="text-blue-200 text-sm">Réf: #EP-<?php echo $post_id; ?> | Date: <?php echo get_the_date('d/m/Y'); ?></p>
+                            </div>
+                            <div class="text-right">
+                                <h3 class="font-bold text-xl">Effe Plast</h3>
+                                <p class="text-xs text-blue-200">Kénitra, Maroc<br>05 37 36 08 20</p>
+                            </div>
+                        </div>
+
+                        <div class="p-8 md:p-12">
+                            <!-- Client Info -->
+                            <div class="mb-10 p-6 bg-gray-50 rounded-xl border border-gray-100">
+                                <h3 class="text-xs font-bold text-ep-cyan uppercase tracking-wider mb-4 border-b border-gray-200 pb-2">Informations du demandeur</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div><span class="text-gray-500 text-sm block">Société:</span> <strong class="text-ep-blue-night"><?php echo esc_html($company); ?></strong></div>
+                                    <div><span class="text-gray-500 text-sm block">Contact:</span> <strong class="text-ep-blue-night"><?php echo esc_html($name); ?></strong></div>
+                                    <div><span class="text-gray-500 text-sm block">Email:</span> <strong class="text-ep-blue-night"><?php echo esc_html($email); ?></strong></div>
+                                    <div><span class="text-gray-500 text-sm block">Téléphone:</span> <strong class="text-ep-blue-night"><?php echo esc_html($phone); ?></strong></div>
+                                </div>
+                            </div>
+
+                            <!-- Items Table -->
+                            <h3 class="text-xs font-bold text-ep-cyan uppercase tracking-wider mb-4 border-b border-gray-200 pb-2">Produits demandés</h3>
+                            <div class="overflow-x-auto mb-8">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr class="bg-gray-100 text-gray-600 text-xs font-bold uppercase tracking-wider">
+                                            <th class="py-3 px-4 rounded-l-lg">Référence</th>
+                                            <th class="py-3 px-4">Produit</th>
+                                            <th class="py-3 px-4 text-center rounded-r-lg">Quantité</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100">
+                                        <?php if(is_array($items)) { foreach($items as $item): ?>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="py-4 px-4 text-sm font-medium text-gray-500">EP-<?php echo esc_html($item['id']); ?></td>
+                                            <td class="py-4 px-4 font-bold text-ep-blue-night"><?php echo esc_html($item['name']); ?></td>
+                                            <td class="py-4 px-4 text-center font-bold text-ep-cyan"><?php echo esc_html($item['quantity']); ?></td>
+                                        </tr>
+                                        <?php endforeach; } ?>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <?php if(!empty($message)): ?>
+                            <div class="mb-6">
+                                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Notes additionnelles</h3>
+                                <p class="text-sm text-gray-600 bg-gray-50 p-4 rounded-lg italic border border-gray-100">"<?php echo nl2br(esc_html($message)); ?>"</p>
+                            </div>
+                            <?php endif; ?>
+
+                            <div class="text-center mt-12 pt-8 border-t border-dashed border-gray-200">
+                                <p class="text-gray-500 text-sm font-medium">Merci pour votre confiance. Notre équipe commerciale vous contactera prochainement avec une offre détaillée.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex flex-col sm:flex-row justify-center gap-4 ep-hide-print">
+                        <button id="ep-download-pdf" class="px-8 py-3.5 bg-ep-blue-night hover:bg-ep-primary text-white font-bold rounded-xl shadow-lg transition-colors flex items-center justify-center gap-3">
+                            <i class="fas fa-file-pdf"></i> Télécharger en PDF
+                        </button>
+                        <a href="<?php echo esc_url(home_url('/devis')); ?>" class="px-8 py-3.5 bg-white border-2 border-ep-cyan text-ep-cyan hover:bg-ep-cyan hover:text-white font-bold rounded-xl shadow-sm transition-colors flex items-center justify-center gap-3">
+                            <i class="fas fa-arrow-left"></i> Retour au catalogue
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Load html2pdf for client-side PDF generation -->
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+                <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const downloadBtn = document.getElementById('ep-download-pdf');
+                    if (downloadBtn) {
+                        downloadBtn.addEventListener('click', function() {
+                            const element = document.getElementById('ep-receipt-document');
+                            const opt = {
+                                margin:       0,
+                                filename:     'Devis_EffePlast_EP-<?php echo $post_id; ?>.pdf',
+                                image:        { type: 'jpeg', quality: 0.98 },
+                                html2canvas:  { scale: 2, useCORS: true },
+                                jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+                            };
+
+                            // Visual feedback
+                            const originalText = this.innerHTML;
+                            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Génération...';
+                            this.classList.add('opacity-75', 'cursor-not-allowed');
+
+                            html2pdf().set(opt).from(element).save().then(() => {
+                                this.innerHTML = originalText;
+                                this.classList.remove('opacity-75', 'cursor-not-allowed');
+                            });
+                        });
+                    }
+                });
+                </script>
+
+                <?php
+                wp_reset_postdata();
+            } else {
+                echo '<div class="text-center py-20"><h2 class="text-2xl font-bold text-red-500">Erreur</h2><p>Ce reçu est introuvable ou a expiré.</p></div>';
+            }
+        } else {
+            // SHOW THE NORMAL CART CHECKOUT
+        ?>
         <div class="grid lg:grid-cols-12 gap-8">
 
             <!-- Liste des produits du devis (Cart Items) -->
@@ -243,6 +379,12 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+        <?php
+        } // End of else block (normal cart view)
+        ?>
+    </div>
+</div>
+
 <style>
 /* CSS to override standard inputs */
 input[type=number]::-webkit-inner-spin-button,
@@ -252,6 +394,15 @@ input[type=number]::-webkit-outer-spin-button {
 }
 input[type=number] {
     -moz-appearance: textfield;
+}
+
+/* Print specific styles */
+@media print {
+    .ep-hide-print { display: none !important; }
+    body { background: white !important; }
+    .bg-ep-blue-night { background-color: #1762A4 !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .text-white { color: white !important; }
+    header, footer { display: none !important; }
 }
 </style>
 
