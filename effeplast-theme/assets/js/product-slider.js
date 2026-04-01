@@ -49,7 +49,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('ep-slider-search');
     const loader = document.getElementById('ep-slider-loader');
 
-    let currentCategory = 'all';
+    // Check if we are on a specific taxonomy page and should pre-load a category
+    let activeCatElement = document.querySelector('.ep-active-cat');
+    let currentCategory = activeCatElement ? activeCatElement.getAttribute('data-cat') : 'all';
     let currentSearch = '';
     let searchTimeout = null;
 

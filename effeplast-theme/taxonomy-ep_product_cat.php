@@ -1,13 +1,13 @@
 <?php
 /**
- * Template Name: Page Produits (Slider Extraordinaire)
- *
- * The template for displaying an immersive, full-screen 3D product slider with filtering capabilities.
+ * The template for displaying Product Categories (Taxonomy) with the 3D Slider design.
  *
  * @package EffePlast
  */
 
 get_header();
+
+$current_term = get_queried_object();
 ?>
 
 <!-- Overrides removed to use light theme -->
@@ -31,11 +31,17 @@ get_header();
     <!-- Filtering UI Container -->
     <div class="container mx-auto px-4 lg:px-8 relative z-20 mb-12">
         <div class="text-center mb-10">
-            <h1 class="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-ep-blue-night to-ep-cyan mb-4 tracking-tight drop-shadow-sm">
-                Notre Collection Premium
+            <h1 class="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-ep-blue-night to-ep-cyan mb-4 tracking-tight drop-shadow-sm uppercase">
+                <?php echo esc_html( $current_term->name ); ?>
             </h1>
             <p class="text-gray-600 font-medium text-lg md:text-xl max-w-2xl mx-auto">
-                Explorez notre catalogue de flacons et bidons. Faites glisser pour découvrir ou utilisez les filtres ci-dessous.
+                <?php
+                if ( !empty($current_term->description) ) {
+                    echo esc_html( $current_term->description );
+                } else {
+                    echo 'Découvrez notre collection de ' . strtolower(esc_html($current_term->name)) . ' de haute qualité, conçus pour répondre à tous vos besoins industriels.';
+                }
+                ?>
             </p>
         </div>
 
@@ -43,7 +49,7 @@ get_header();
 
             <!-- Category Pills -->
             <div class="flex flex-wrap items-center justify-center gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0" id="ep-slider-categories">
-                <button class="ep-cat-btn px-4 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all bg-ep-cyan text-white shadow-md shadow-cyan-500/30 border border-ep-cyan" data-cat="all">Tous</button>
+                <a href="<?php echo esc_url( get_post_type_archive_link( 'ep_produit' ) ); ?>" class="px-4 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all bg-gray-50 text-gray-600 border border-gray-200 hover:border-ep-cyan hover:text-ep-cyan hover:bg-white">Tous les produits</a>
                 <?php
                 $categories = get_terms( array(
                     'taxonomy'   => 'ep_product_cat',
@@ -51,7 +57,10 @@ get_header();
                 ) );
                 if ( ! empty( $categories ) && ! is_wp_error( $categories ) ) {
                     foreach ( $categories as $category ) {
-                        echo '<button class="ep-cat-btn px-4 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all bg-gray-50 text-gray-600 border border-gray-200 hover:border-ep-cyan hover:text-ep-cyan hover:bg-white" data-cat="' . esc_attr($category->slug) . '">' . esc_html($category->name) . '</button>';
+                        // Pre-select current category
+                        $is_active = ( $current_term->slug === $category->slug ) ? 'bg-ep-cyan text-white shadow-md shadow-cyan-500/30 border-ep-cyan ep-active-cat' : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-ep-cyan hover:text-ep-cyan hover:bg-white';
+
+                        echo '<button class="ep-cat-btn px-4 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all border ' . esc_attr($is_active) . '" data-cat="' . esc_attr($category->slug) . '">' . esc_html($category->name) . '</button>';
                     }
                 }
                 ?>

@@ -927,3 +927,331 @@ function ep_render_single_devis_view($post_id) {
     </div>
     <?php
 }
+
+/**
+ * Register Custom Post Type: Messages Contact (Private for admin only)
+ */
+function ep_register_messages_contact_cpt() {
+    $labels = array(
+        'name'                  => _x( 'Messages Contact', 'Post Type General Name', 'effeplast' ),
+        'singular_name'         => _x( 'Message Contact', 'Post Type Singular Name', 'effeplast' ),
+        'menu_name'             => __( 'Messages Reçus', 'effeplast' ),
+        'all_items'             => __( 'Tous les Messages', 'effeplast' ),
+        'view_item'             => __( 'Voir le Message', 'effeplast' ),
+        'not_found'             => __( 'Aucun message trouvé', 'effeplast' ),
+    );
+    $args = array(
+        'label'                 => __( 'Message Contact', 'effeplast' ),
+        'labels'                => $labels,
+        'supports'              => array( 'title', 'custom-fields' ), // Title will be "Message - [Name] - [Date]"
+        'hierarchical'          => false,
+        'public'                => false, // Private!
+        'show_ui'               => false, // We will build a custom dashboard similar to quotes
+        'show_in_menu'          => false,
+        'can_export'            => true,
+        'has_archive'           => false,
+        'exclude_from_search'   => true,
+        'publicly_queryable'    => false,
+        'capability_type'       => 'post',
+    );
+    register_post_type( 'ep_message_contact', $args );
+}
+add_action( 'init', 'ep_register_messages_contact_cpt', 0 );
+
+/**
+ * Custom Admin Menu for Contact Messages Dashboard
+ */
+function ep_add_contact_messages_admin_menu() {
+    add_menu_page(
+        'Messages Reçus', // Page title
+        'Messages Reçus', // Menu title
+        'manage_options', // Capability
+        'ep-messages-dashboard', // Menu slug
+        'ep_messages_dashboard_page', // Callback function
+        'dashicons-email', // Icon
+        7 // Position
+    );
+}
+add_action( 'admin_menu', 'ep_add_contact_messages_admin_menu' );
+
+/**
+ * Main Callback for Messages Dashboard Page
+ */
+function ep_messages_dashboard_page() {
+    // Determine view: list or single
+    $action = isset($_GET['action']) ? sanitize_text_field($_GET['action']) : 'list';
+    $post_id = isset($_GET['id']) ? absint($_GET['id']) : 0;
+
+    echo '<div class="wrap" style="max-width: 1200px;">';
+    echo '<h1>Gestion des Messages de Contact</h1>';
+
+    if ( $action === 'view' && $post_id > 0 ) {
+        ep_render_single_message_view( $post_id );
+    } else {
+        ep_render_messages_list_view();
+    }
+
+    echo '</div>';
+}
+
+/**
+ * Render the Messages List Dashboard
+ */
+function ep_render_messages_list_view() {
+    $filter = isset($_GET['filter']) ? sanitize_text_field($_GET['filter']) : 'all';
+    $custom_date = isset($_GET['custom_date']) ? sanitize_text_field($_GET['custom_date']) : '';
+
+    // Base Query Args
+    $args = array(
+        'post_type'      => 'ep_message_contact',
+        'posts_per_page' => 50,
+        'post_status'    => 'publish',
+        'orderby'        => 'date',
+        'order'          => 'DESC'
+    );
+
+    // Apply Date Filtering
+    if ( !empty($custom_date) ) {
+        $args['date_query'] = array(
+            array(
+                'year'  => date( 'Y', strtotime( $custom_date ) ),
+                'month' => date( 'm', strtotime( $custom_date ) ),
+                'day'   => date( 'd', strtotime( $custom_date ) ),
+            ),
+        );
+    } else {
+        // Preset filters
+        switch ($filter) {
+            case 'today':
+                $args['date_query'] = array(
+                    array(
+                        'year'  => date( 'Y' ),
+                        'month' => date( 'm' ),
+                        'day'   => date( 'd' ),
+                    ),
+                );
+                break;
+            case 'yesterday':
+                $args['date_query'] = array(
+                    array(
+                        'year'  => date( 'Y', strtotime( '-1 days' ) ),
+                        'month' => date( 'm', strtotime( '-1 days' ) ),
+                        'day'   => date( 'd', strtotime( '-1 days' ) ),
+                    ),
+                );
+                break;
+            case 'last7':
+                $args['date_query'] = array(
+                    array(
+                        'after' => '1 week ago',
+                    ),
+                );
+                break;
+            case 'last30':
+                $args['date_query'] = array(
+                    array(
+                        'after' => '1 month ago',
+                    ),
+                );
+                break;
+        }
+    }
+
+    $messages_query = new WP_Query( $args );
+
+    // UI Filters Bar
+    ?>
+    <div style="background: #fff; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #ccd0d4; box-shadow: 0 1px 1px rgba(0,0,0,.04);">
+        <form method="GET" action="admin.php" style="display:flex; flex-wrap: wrap; gap: 15px; align-items: center;">
+            <input type="hidden" name="page" value="ep-messages-dashboard">
+
+            <h3 style="margin: 0; padding-right: 10px; font-size: 14px;">Filtrer par date :</h3>
+
+            <div style="display: flex; gap: 10px;">
+                <button type="submit" name="filter" value="today" class="button <?php echo $filter == 'today' && empty($custom_date) ? 'button-primary' : ''; ?>">Aujourd'hui</button>
+                <button type="submit" name="filter" value="yesterday" class="button <?php echo $filter == 'yesterday' && empty($custom_date) ? 'button-primary' : ''; ?>">Hier</button>
+                <button type="submit" name="filter" value="last7" class="button <?php echo $filter == 'last7' && empty($custom_date) ? 'button-primary' : ''; ?>">7 derniers jours</button>
+                <button type="submit" name="filter" value="last30" class="button <?php echo $filter == 'last30' && empty($custom_date) ? 'button-primary' : ''; ?>">Le mois dernier</button>
+                <a href="?page=ep-messages-dashboard&filter=all" class="button <?php echo $filter == 'all' && empty($custom_date) ? 'button-primary' : ''; ?>">Tout voir</a>
+            </div>
+
+            <div style="margin-left: 20px; display: flex; align-items: center; gap: 10px; border-left: 1px solid #ddd; padding-left: 20px;">
+                <label for="custom_date" style="font-weight: 600;">Date spécifique :</label>
+                <input type="date" name="custom_date" id="custom_date" value="<?php echo esc_attr($custom_date); ?>" style="line-height: normal;">
+                <button type="submit" class="button">Chercher</button>
+                <?php if(!empty($custom_date)): ?>
+                    <a href="?page=ep-messages-dashboard" style="color: #d63638; text-decoration: none;">&times; Effacer</a>
+                <?php endif; ?>
+            </div>
+        </form>
+    </div>
+
+    <!-- Data Table -->
+    <table class="wp-list-table widefat fixed striped table-view-list">
+        <thead>
+            <tr>
+                <th class="manage-column column-title" style="width: 80px;">N°</th>
+                <th class="manage-column" style="width: 150px;">Date & Heure</th>
+                <th class="manage-column">Expéditeur</th>
+                <th class="manage-column">Sujet</th>
+                <th class="manage-column" style="width: 100px;">Statut</th>
+                <th class="manage-column" style="width: 150px; text-align: center;">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            if ( $messages_query->have_posts() ) {
+                while ( $messages_query->have_posts() ) {
+                    $messages_query->the_post();
+                    $post_id = get_the_ID();
+
+                    $name = get_post_meta( $post_id, '_ep_msg_name', true );
+                    $subject = get_post_meta( $post_id, '_ep_msg_subject', true );
+                    $status = get_post_meta( $post_id, '_ep_msg_status', true );
+
+                    $status_badge = $status == 'lu' ? '<span style="background:#e5f5fa; color:#005a9e; padding:3px 8px; border-radius:12px; font-size:12px; font-weight:600;">Lu</span>' : '<span style="background:#f0b849; color:#fff; padding:3px 8px; border-radius:12px; font-size:12px; font-weight:600;">Nouveau</span>';
+                    ?>
+                    <tr>
+                        <td><strong>#<?php echo $post_id; ?></strong></td>
+                        <td><?php echo get_the_date('d/m/Y') . ' à ' . get_the_time('H:i'); ?></td>
+                        <td><strong><?php echo esc_html($name); ?></strong></td>
+                        <td><?php echo esc_html($subject); ?></td>
+                        <td><?php echo $status_badge; ?></td>
+                        <td style="text-align: center;">
+                            <a href="?page=ep-messages-dashboard&action=view&id=<?php echo $post_id; ?>" class="button button-primary">Lire le message</a>
+                        </td>
+                    </tr>
+                    <?php
+                }
+            } else {
+                echo '<tr><td colspan="6" style="text-align: center; padding: 30px;">Aucun message trouvé pour cette période.</td></tr>';
+            }
+            wp_reset_postdata();
+            ?>
+        </tbody>
+    </table>
+    <?php
+}
+
+/**
+ * Render Single Message Details Page
+ */
+function ep_render_single_message_view($post_id) {
+    // Check if post exists and is of correct type
+    $post = get_post($post_id);
+    if(!$post || $post->post_type !== 'ep_message_contact') {
+        echo '<div class="notice notice-error"><p>Message introuvable.</p></div>';
+        echo '<a href="?page=ep-messages-dashboard" class="button">&laquo; Retour à la liste</a>';
+        return;
+    }
+
+    // Mark as read
+    update_post_meta($post_id, '_ep_msg_status', 'lu');
+
+    // Get Meta
+    $name = get_post_meta($post_id, '_ep_msg_name', true);
+    $email = get_post_meta($post_id, '_ep_msg_email', true);
+    $subject = get_post_meta($post_id, '_ep_msg_subject', true);
+    $message = get_post_meta($post_id, '_ep_msg_content', true);
+
+    // Style for the admin view
+    ?>
+    <style>
+        .ep-admin-card { background: #fff; border: 1px solid #ccd0d4; box-shadow: 0 1px 1px rgba(0,0,0,.04); padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .ep-admin-label { font-size: 12px; font-weight: 600; color: #646970; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; display: block; }
+        .ep-admin-val { font-size: 15px; color: #1d2327; margin: 0 0 15px 0; }
+    </style>
+
+    <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+        <a href="?page=ep-messages-dashboard" class="button">&laquo; Retour aux messages</a>
+        <span style="font-size: 16px; color: #646970;">Reçu le : <strong><?php echo get_the_date('d F Y', $post) . ' à ' . get_the_time('H:i', $post); ?></strong></span>
+    </div>
+
+    <!-- Client Details -->
+    <div class="ep-admin-card" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <div>
+            <h2 style="margin-top: 0; padding-bottom: 10px; border-bottom: 1px solid #f0f0f1; font-size: 18px;">Expéditeur</h2>
+            <span class="ep-admin-label">Nom complet</span>
+            <p class="ep-admin-val"><strong><?php echo esc_html($name); ?></strong></p>
+            <span class="ep-admin-label">Email</span>
+            <p class="ep-admin-val"><a href="mailto:<?php echo esc_attr($email); ?>"><?php echo esc_html($email); ?></a></p>
+        </div>
+        <div>
+            <h2 style="margin-top: 0; padding-bottom: 10px; border-bottom: 1px solid #f0f0f1; font-size: 18px;">Sujet</h2>
+            <p class="ep-admin-val" style="margin-top: 15px; font-weight: bold;"><?php echo esc_html($subject); ?></p>
+        </div>
+    </div>
+
+    <!-- Message Body -->
+    <div class="ep-admin-card">
+        <h2 style="margin-top: 0; padding-bottom: 10px; border-bottom: 1px solid #f0f0f1; font-size: 18px;">Message</h2>
+        <div style="background: #f9f9f9; padding: 20px; border-left: 4px solid #00B4D8; color: #333; font-size: 15px; line-height: 1.6; white-space: pre-wrap;">
+            <?php echo esc_html($message); ?>
+        </div>
+    </div>
+
+    <div style="margin-top: 30px; text-align: right;">
+        <a href="mailto:<?php echo esc_attr($email); ?>?subject=RE: <?php echo esc_attr($subject); ?>" class="button button-primary button-large" style="background: #00B4D8; border-color: #00B4D8;">
+            <span class="dashicons dashicons-email" style="margin-top: 4px; margin-right: 5px;"></span> Répondre
+        </a>
+    </div>
+    <?php
+}
+
+/**
+ * Handle Contact Form Submission
+ */
+function ep_handle_submit_contact() {
+    // Verify nonce
+    if ( ! isset( $_POST['ep_contact_nonce'] ) || ! wp_verify_nonce( $_POST['ep_contact_nonce'], 'ep_submit_contact_nonce' ) ) {
+        wp_die( 'La vérification de sécurité a échoué. Veuillez réessayer.' );
+    }
+
+    // Retrieve and sanitize fields
+    $name = sanitize_text_field( $_POST['nom'] );
+    $email = sanitize_email( $_POST['email'] );
+    $subject = sanitize_text_field( $_POST['sujet'] );
+    $message = sanitize_textarea_field( $_POST['message'] );
+
+    // Save to Database (CPT ep_message_contact)
+    $post_title = 'Message de ' . $name . ' - ' . wp_date( 'd/m/Y' );
+
+    $post_data = array(
+        'post_title'   => $post_title,
+        'post_status'  => 'publish',
+        'post_type'    => 'ep_message_contact',
+        'post_author'  => 1
+    );
+
+    $post_id = wp_insert_post( $post_data );
+
+    if ( ! is_wp_error( $post_id ) ) {
+        update_post_meta( $post_id, '_ep_msg_name', $name );
+        update_post_meta( $post_id, '_ep_msg_email', $email );
+        update_post_meta( $post_id, '_ep_msg_subject', $subject );
+        update_post_meta( $post_id, '_ep_msg_content', $message );
+        update_post_meta( $post_id, '_ep_msg_status', 'nouveau' );
+    }
+
+    // Send Email to Admin
+    $to_admin = 'effeplast.kenitra@gmail.com';
+    $subject_admin = 'Nouveau Message de Contact : ' . $subject;
+    $headers = array('Content-Type: text/html; charset=UTF-8');
+    $headers[] = 'From: ' . $name . ' <' . $email . '>';
+    $headers[] = 'Reply-To: ' . $email;
+
+    $body_admin = '<h2>Nouveau message depuis la page Contact d\'Effe Plast</h2>';
+    $body_admin .= '<p><strong>Nom :</strong> ' . $name . '</p>';
+    $body_admin .= '<p><strong>Email :</strong> ' . $email . '</p>';
+    $body_admin .= '<p><strong>Sujet :</strong> ' . $subject . '</p>';
+    $body_admin .= '<p><strong>Message :</strong><br>' . nl2br($message) . '</p>';
+
+    wp_mail( $to_admin, $subject_admin, $body_admin, $headers );
+
+    // Redirect with success flag
+    $redirect_url = add_query_arg( 'contact_success', '1', home_url('/contact') );
+    wp_redirect( $redirect_url );
+    exit();
+}
+add_action( 'admin_post_nopriv_ep_submit_contact', 'ep_handle_submit_contact' );
+add_action( 'admin_post_ep_submit_contact', 'ep_handle_submit_contact' );

@@ -85,27 +85,40 @@ get_header();
                         echo '</div>';
                     else :
                     ?>
-                    <!-- Fallback Modern Form UI -->
-                    <form action="#" method="POST" class="space-y-6">
+                    <!-- Modern Form UI -->
+                    <form action="<?php echo esc_url( admin_url('admin-post.php') ); ?>" method="POST" class="space-y-6">
+                        <input type="hidden" name="action" value="ep_submit_contact">
+                        <?php wp_nonce_field( 'ep_submit_contact_nonce', 'ep_contact_nonce' ); ?>
+
+                        <?php if ( isset( $_GET['contact_success'] ) && $_GET['contact_success'] == '1' ) : ?>
+                            <div class="bg-green-50 text-green-600 p-4 rounded-xl border border-green-200 flex items-center gap-3">
+                                <i class="fas fa-check-circle text-xl"></i>
+                                <div>
+                                    <p class="font-bold">Message envoyé avec succès !</p>
+                                    <p class="text-sm">Nous vous répondrons très prochainement.</p>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+
                         <div class="grid md:grid-cols-2 gap-6">
                             <div class="space-y-2">
-                                <label for="nom" class="text-sm font-bold text-gray-700 tracking-wide">Nom complet</label>
-                                <input type="text" id="nom" name="nom" placeholder="Votre nom" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 hover:border-ep-cyan focus:border-ep-cyan rounded-xl text-gray-700 font-medium focus:outline-none focus:ring-1 focus:ring-ep-cyan transition-all shadow-sm">
+                                <label for="nom" class="text-sm font-bold text-gray-700 tracking-wide">Nom complet <span class="text-red-500">*</span></label>
+                                <input type="text" id="nom" name="nom" required placeholder="Votre nom" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 hover:border-ep-cyan focus:border-ep-cyan rounded-xl text-gray-700 font-medium focus:outline-none focus:ring-1 focus:ring-ep-cyan transition-all shadow-sm">
                             </div>
                             <div class="space-y-2">
-                                <label for="email" class="text-sm font-bold text-gray-700 tracking-wide">Adresse email</label>
-                                <input type="email" id="email" name="email" placeholder="votre@email.com" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 hover:border-ep-cyan focus:border-ep-cyan rounded-xl text-gray-700 font-medium focus:outline-none focus:ring-1 focus:ring-ep-cyan transition-all shadow-sm">
+                                <label for="email" class="text-sm font-bold text-gray-700 tracking-wide">Adresse email <span class="text-red-500">*</span></label>
+                                <input type="email" id="email" name="email" required placeholder="votre@email.com" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 hover:border-ep-cyan focus:border-ep-cyan rounded-xl text-gray-700 font-medium focus:outline-none focus:ring-1 focus:ring-ep-cyan transition-all shadow-sm">
                             </div>
                         </div>
 
                         <div class="space-y-2">
-                            <label for="sujet" class="text-sm font-bold text-gray-700 tracking-wide">Sujet</label>
-                            <input type="text" id="sujet" name="sujet" placeholder="Sujet de votre demande" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 hover:border-ep-cyan focus:border-ep-cyan rounded-xl text-gray-700 font-medium focus:outline-none focus:ring-1 focus:ring-ep-cyan transition-all shadow-sm">
+                            <label for="sujet" class="text-sm font-bold text-gray-700 tracking-wide">Sujet <span class="text-red-500">*</span></label>
+                            <input type="text" id="sujet" name="sujet" required placeholder="Sujet de votre demande" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 hover:border-ep-cyan focus:border-ep-cyan rounded-xl text-gray-700 font-medium focus:outline-none focus:ring-1 focus:ring-ep-cyan transition-all shadow-sm">
                         </div>
 
                         <div class="space-y-2">
-                            <label for="message" class="text-sm font-bold text-gray-700 tracking-wide">Message</label>
-                            <textarea id="message" name="message" rows="5" placeholder="Comment pouvons-nous vous aider ?" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 hover:border-ep-cyan focus:border-ep-cyan rounded-xl text-gray-700 font-medium focus:outline-none focus:ring-1 focus:ring-ep-cyan transition-all shadow-sm resize-none"></textarea>
+                            <label for="message" class="text-sm font-bold text-gray-700 tracking-wide">Message <span class="text-red-500">*</span></label>
+                            <textarea id="message" name="message" required rows="5" placeholder="Comment pouvons-nous vous aider ?" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 hover:border-ep-cyan focus:border-ep-cyan rounded-xl text-gray-700 font-medium focus:outline-none focus:ring-1 focus:ring-ep-cyan transition-all shadow-sm resize-none"></textarea>
                         </div>
 
                         <button type="submit" class="w-full px-8 py-4 bg-ep-blue-night hover:bg-ep-primary text-white font-bold rounded-xl shadow-lg hover:shadow-cyan-500/30 transition-all duration-300 flex justify-center items-center gap-2 group">
