@@ -488,7 +488,14 @@ add_action( 'wp_footer', 'ep_quote_success_notice' );
  * Enqueue Swiper JS and CSS for the Product Slider Page
  */
 function ep_enqueue_swiper_assets() {
-    if ( is_page_template( 'page-produits-slider.php' ) || is_tax( 'ep_product_cat' ) || is_post_type_archive( 'ep_produit' ) ) {
+    $slider_templates = array(
+        'page-produits-slider.php',
+        'page-cat-bidons.php',
+        'page-cat-bouteilles.php',
+        'page-cat-bouchons.php'
+    );
+
+    if ( is_page_template( $slider_templates ) || is_tax( 'ep_product_cat' ) || is_post_type_archive( 'ep_produit' ) ) {
         // Swiper CSS
         wp_enqueue_style( 'swiper-css', 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css', array(), '11.0.5' );
         // Swiper JS
