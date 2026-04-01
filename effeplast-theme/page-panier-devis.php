@@ -26,7 +26,7 @@ get_header();
     </div>
 
     <!-- Main Content Area -->
-    <div class="container mx-auto px-4 lg:px-8 -mt-10 relative z-30">
+    <div class="container mx-auto px-2 sm:px-4 lg:px-8 -mt-6 md:-mt-10 relative z-30">
 
         <?php
         // Check if we are displaying a receipt after successful submission
@@ -168,13 +168,13 @@ get_header();
 
             <!-- Liste des produits du devis (Cart Items) -->
             <div class="lg:col-span-7 xl:col-span-8">
-                <div class="bg-white rounded-[2rem] shadow-modern border border-gray-100 p-6 md:p-10 mb-8" id="ep-quote-cart-container">
+                <div class="bg-white rounded-3xl shadow-modern border border-gray-100 p-4 sm:p-6 md:p-10 mb-8" id="ep-quote-cart-container">
 
-                    <div class="flex items-center justify-between mb-8 pb-4 border-b border-gray-100">
-                        <h2 class="text-2xl font-black text-ep-blue-night flex items-center gap-3">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6 sm:mb-8 pb-4 border-b border-gray-100">
+                        <h2 class="text-xl sm:text-2xl font-black text-ep-blue-night flex items-center gap-3">
                             <i class="fas fa-boxes text-ep-cyan"></i> Produits sélectionnés
                         </h2>
-                        <span class="text-sm font-bold bg-ep-cyan/10 text-ep-cyan py-1 px-3 rounded-full"><span class="ep-quote-count">0</span> produit(s)</span>
+                        <span class="text-xs sm:text-sm font-bold bg-ep-cyan/10 text-ep-cyan py-1 px-3 rounded-full flex-shrink-0 whitespace-nowrap"><span class="ep-quote-count">0</span> produit(s)</span>
                     </div>
 
                     <!-- Empty state -->
@@ -190,14 +190,14 @@ get_header();
                     </div>
 
                     <!-- Products List Table -->
-                    <div class="overflow-x-auto" id="ep-cart-table-wrapper">
-                        <table class="w-full text-left border-collapse">
+                    <div class="overflow-x-auto pb-4" id="ep-cart-table-wrapper">
+                        <table class="w-full text-left border-collapse min-w-[500px] sm:min-w-[600px]">
                             <thead>
                                 <tr class="bg-gray-50 text-gray-500 text-xs font-bold uppercase tracking-wider border-b border-gray-100">
-                                    <th class="py-4 px-4 w-20">Produit</th>
-                                    <th class="py-4 px-4">Détails</th>
-                                    <th class="py-4 px-4 text-center w-32">Quantité estimée</th>
-                                    <th class="py-4 px-4 text-right w-16"></th>
+                                    <th class="py-4 px-2 sm:px-4 w-20">Produit</th>
+                                    <th class="py-4 px-2 sm:px-4">Détails</th>
+                                    <th class="py-4 px-2 sm:px-4 text-center w-32">Quantité estimée</th>
+                                    <th class="py-4 px-2 sm:px-4 text-right w-12"></th>
                                 </tr>
                             </thead>
                             <tbody id="ep-cart-items-tbody" class="divide-y divide-gray-100">
@@ -297,23 +297,23 @@ document.addEventListener('DOMContentLoaded', function() {
             let imgHtml = item.image ? `<img src="${item.image}" alt="${item.name}" class="w-12 h-12 object-contain mix-blend-multiply">` : `<i class="fas fa-box text-2xl text-gray-300"></i>`;
 
             tr.innerHTML = `
-                <td class="py-4 px-4">
-                    <div class="w-16 h-16 bg-gray-50 rounded-lg border border-gray-100 flex items-center justify-center p-2">
+                <td class="py-4 px-2 sm:px-4">
+                    <div class="w-12 h-12 sm:w-16 sm:h-16 bg-gray-50 rounded-lg border border-gray-100 flex items-center justify-center p-1 sm:p-2">
                         ${imgHtml}
                     </div>
                 </td>
-                <td class="py-4 px-4">
-                    <h4 class="font-bold text-ep-blue-night text-lg">${item.name}</h4>
-                    <span class="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full mt-1 inline-block">Ref: EP-${item.id}</span>
+                <td class="py-4 px-2 sm:px-4">
+                    <h4 class="font-bold text-ep-blue-night text-[15px] sm:text-lg leading-tight mb-1 break-words">${item.name}</h4>
+                    <span class="text-[10px] sm:text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full inline-block whitespace-nowrap">Ref: EP-${item.id}</span>
                 </td>
-                <td class="py-4 px-4 text-center">
-                    <div class="flex items-center justify-center border border-gray-200 rounded-lg overflow-hidden bg-white w-28 mx-auto">
-                        <button type="button" class="ep-qty-minus w-8 h-10 flex items-center justify-center text-gray-500 hover:text-ep-cyan focus:outline-none"><i class="fas fa-minus text-xs"></i></button>
-                        <input type="number" min="1" value="${item.quantity}" class="ep-qty-input w-12 h-10 text-center text-gray-800 font-bold border-x border-gray-100 focus:outline-none appearance-none m-0 p-0 text-sm">
-                        <button type="button" class="ep-qty-plus w-8 h-10 flex items-center justify-center text-gray-500 hover:text-ep-cyan focus:outline-none"><i class="fas fa-plus text-xs"></i></button>
+                <td class="py-4 px-2 sm:px-4 text-center">
+                    <div class="flex items-center justify-center border border-gray-200 rounded-lg overflow-hidden bg-white w-24 sm:w-28 mx-auto">
+                        <button type="button" class="ep-qty-minus w-6 sm:w-8 h-8 sm:h-10 flex items-center justify-center text-gray-500 hover:text-ep-cyan focus:outline-none"><i class="fas fa-minus text-[10px] sm:text-xs"></i></button>
+                        <input type="number" min="1" value="${item.quantity}" class="ep-qty-input w-10 sm:w-12 h-8 sm:h-10 text-center text-gray-800 font-bold border-x border-gray-100 focus:outline-none appearance-none m-0 p-0 text-xs sm:text-sm">
+                        <button type="button" class="ep-qty-plus w-6 sm:w-8 h-8 sm:h-10 flex items-center justify-center text-gray-500 hover:text-ep-cyan focus:outline-none"><i class="fas fa-plus text-[10px] sm:text-xs"></i></button>
                     </div>
                 </td>
-                <td class="py-4 px-4 text-right">
+                <td class="py-4 px-2 sm:px-4 text-right">
                     <button type="button" class="ep-remove-item w-8 h-8 rounded-full bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-colors flex items-center justify-center ml-auto" title="Supprimer">
                         <i class="fas fa-trash-alt text-xs"></i>
                     </button>
