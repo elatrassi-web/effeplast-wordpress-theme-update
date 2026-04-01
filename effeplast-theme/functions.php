@@ -176,10 +176,20 @@ function effeplast_register_produits_cpt() {
         'show_in_nav_menus'          => true,
         'show_tagcloud'              => true,
         'show_in_rest'               => true, // Enable Gutenberg compatibility
+        'rewrite'                    => array( 'slug' => 'categorie-produit', 'with_front' => false ),
     );
     register_taxonomy( 'ep_product_cat', array( 'ep_produit' ), $tax_args );
 }
 add_action( 'init', 'effeplast_register_produits_cpt', 0 );
+
+/**
+ * Flush rewrite rules on theme activation to ensure custom CPT and Taxonomy URLs work immediately.
+ */
+function effeplast_flush_rewrite_rules() {
+    effeplast_register_produits_cpt();
+    flush_rewrite_rules();
+}
+add_action( 'after_switch_theme', 'effeplast_flush_rewrite_rules' );
 
 /**
  * Register Meta Box for Products: Price & Secondary Image
