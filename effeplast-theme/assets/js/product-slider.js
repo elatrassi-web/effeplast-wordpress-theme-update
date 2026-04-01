@@ -98,15 +98,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Category click listeners
     catButtons.forEach(btn => {
         btn.addEventListener('click', function() {
-            // Reset active states
+            // Reset active states (using the new light theme classes)
             catButtons.forEach(b => {
-                b.classList.remove('bg-ep-cyan', 'text-white', 'shadow-[0_0_15px_rgba(0,180,216,0.5)]', 'border-ep-cyan', 'scale-105');
-                b.classList.add('bg-transparent', 'text-gray-300', 'border-white/20');
+                b.classList.remove('bg-ep-cyan', 'text-white', 'shadow-md', 'shadow-cyan-500/30', 'border-ep-cyan');
+                b.classList.add('bg-gray-50', 'text-gray-600', 'border-gray-200');
             });
 
             // Set active state on clicked
-            this.classList.remove('bg-transparent', 'text-gray-300', 'border-white/20');
-            this.classList.add('bg-ep-cyan', 'text-white', 'shadow-[0_0_15px_rgba(0,180,216,0.5)]', 'border-ep-cyan', 'scale-105');
+            this.classList.remove('bg-gray-50', 'text-gray-600', 'border-gray-200');
+            this.classList.add('bg-ep-cyan', 'text-white', 'shadow-md', 'shadow-cyan-500/30', 'border-ep-cyan');
 
             currentCategory = this.getAttribute('data-cat');
             fetchProducts();

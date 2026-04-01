@@ -42,8 +42,8 @@ get_header();
         <div class="max-w-4xl mx-auto bg-white/80 backdrop-blur-xl border border-gray-100 p-4 md:p-6 rounded-[2rem] shadow-modern flex flex-col md:flex-row gap-4 items-center justify-between">
 
             <!-- Category Pills -->
-            <div class="flex flex-wrap items-center justify-center gap-2 md:gap-3 w-full md:w-auto overflow-x-auto pb-2 md:pb-0" id="ep-slider-categories">
-                <button class="ep-cat-btn px-5 py-2.5 rounded-full text-sm font-bold tracking-wide transition-all bg-ep-cyan text-white shadow-md border border-ep-cyan scale-105" data-cat="all">Tous</button>
+            <div class="flex flex-wrap items-center justify-center gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0" id="ep-slider-categories">
+                <button class="ep-cat-btn px-4 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all bg-ep-cyan text-white shadow-md shadow-cyan-500/30 border border-ep-cyan" data-cat="all">Tous</button>
                 <?php
                 $categories = get_terms( array(
                     'taxonomy'   => 'ep_product_cat',
@@ -51,7 +51,7 @@ get_header();
                 ) );
                 if ( ! empty( $categories ) && ! is_wp_error( $categories ) ) {
                     foreach ( $categories as $category ) {
-                        echo '<button class="ep-cat-btn px-5 py-2.5 rounded-full text-sm font-bold tracking-wide transition-all bg-gray-50 text-gray-600 border border-gray-200 hover:border-ep-cyan hover:text-ep-cyan" data-cat="' . esc_attr($category->slug) . '">' . esc_html($category->name) . '</button>';
+                        echo '<button class="ep-cat-btn px-4 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all bg-gray-50 text-gray-600 border border-gray-200 hover:border-ep-cyan hover:text-ep-cyan hover:bg-white" data-cat="' . esc_attr($category->slug) . '">' . esc_html($category->name) . '</button>';
                     }
                 }
                 ?>
