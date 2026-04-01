@@ -478,7 +478,7 @@ add_action( 'wp_footer', 'ep_quote_success_notice' );
  * Enqueue Swiper JS and CSS for the Product Slider Page
  */
 function ep_enqueue_swiper_assets() {
-    if ( is_page_template( 'page-produits-slider.php' ) ) {
+    if ( is_page_template( 'page-produits-slider.php' ) || is_tax( 'ep_product_cat' ) ) {
         // Swiper CSS
         wp_enqueue_style( 'swiper-css', 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css', array(), '11.0.5' );
         // Swiper JS
