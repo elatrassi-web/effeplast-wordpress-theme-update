@@ -91,6 +91,14 @@ get_header();
             <!-- Pagination -->
             <div class="swiper-pagination !-bottom-6"></div>
         </div>
+
+        <!-- Swipe Indicator -->
+        <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex flex-col items-center text-gray-400 opacity-70 animate-bounce pointer-events-none z-40 hidden md:flex">
+            <i class="fas fa-hand-pointer text-xl mb-1"></i>
+            <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest">
+                <i class="fas fa-chevron-left text-[8px]"></i> Glisser <i class="fas fa-chevron-right text-[8px]"></i>
+            </div>
+        </div>
     </div>
 
     <!-- Background wave for smooth transition to footer if needed -->

@@ -95,18 +95,23 @@ const QuoteSystem = {
 
             // Check if it's a slider button (which has a slightly different layout, rounded pills)
             let isSliderBtn = btn.classList.contains('whitespace-nowrap');
+            // Check if it's in the devis table (allows removal)
+            let isTableBtn = btn.closest('tr') && !isSliderBtn;
 
             if (this.isInCart(productId)) {
-                btn.classList.add('bg-gray-600', 'hover:bg-gray-500', 'cursor-not-allowed');
+                btn.classList.add('bg-red-600', 'hover:bg-red-500'); // Changed from disabled gray to active red for removal
                 btn.classList.remove('bg-[#1762A4]', 'hover:bg-ep-cyan', 'bg-ep-blue-night');
 
                 if (isSliderBtn) {
                     btn.innerHTML = '<i class="fas fa-check"></i> <span class="btn-text">Déjà ajouté</span>';
-                } else {
-                    btn.innerHTML = 'Déjà ajouté';
+                    btn.setAttribute('disabled', 'disabled'); // Slider buttons remain disabled
+                    btn.classList.add('cursor-not-allowed', 'bg-gray-600', 'hover:bg-gray-500');
+                    btn.classList.remove('bg-red-600', 'hover:bg-red-500');
+                } else if (isTableBtn) {
+                    btn.innerHTML = '<i class="fas fa-trash-alt mr-2"></i> Retirer';
+                    btn.removeAttribute('disabled');
+                    btn.setAttribute('data-action', 'remove');
                 }
-
-                btn.setAttribute('disabled', 'disabled');
 
                 // Show "Voir la liste" link if it exists next to it (specifically for page-devis table)
                 let viewLinkContainer = btn.parentElement.nextElementSibling;
@@ -114,7 +119,7 @@ const QuoteSystem = {
                     viewLinkContainer.innerHTML = '<a href="/panier-devis" class="text-sm text-gray-300 hover:text-white underline underline-offset-2">Voir la liste</a>';
                 }
             } else {
-                btn.classList.remove('bg-gray-600', 'hover:bg-gray-500', 'cursor-not-allowed');
+                btn.classList.remove('bg-red-600', 'hover:bg-red-500', 'cursor-not-allowed', 'bg-gray-600', 'hover:bg-gray-500');
                 // Use default color based on btn type
                 if (isSliderBtn) {
                     btn.classList.add('bg-ep-blue-night', 'hover:bg-ep-cyan');
@@ -125,50 +130,97 @@ const QuoteSystem = {
                 }
 
                 btn.removeAttribute('disabled');
+                btn.removeAttribute('data-action');
 
                 let viewLinkContainer = btn.parentElement.nextElementSibling;
                 if(viewLinkContainer && viewLinkContainer.classList.contains('ep-view-list-container')) {
                     viewLinkContainer.innerHTML = '';
                 }
             }
+
+            // Sync quantity input on Devis page if item is in cart
+            if (isTableBtn && this.isInCart(productId)) {
+                let row = btn.closest('tr');
+                let qtyInput = row.querySelector('.ep-qty-input');
+                if (qtyInput) {
+                    let cartItem = this.getCart().find(item => item.id === productId);
+                    if (cartItem && qtyInput.value !== cartItem.quantity.toString()) {
+                        qtyInput.value = cartItem.quantity;
+                    }
+                }
+            }
         });
+
+        // Update total order button on Devis page
+        let orderBtnContainer = document.getElementById('ep-passer-commande-container');
+        if (orderBtnContainer) {
+            let totalItems = this.getCart().length;
+            if (totalItems > 0) {
+                orderBtnContainer.innerHTML = `<a href="/panier-devis" class="fixed bottom-6 right-6 md:bottom-10 md:right-10 z-50 px-8 py-4 bg-gradient-to-r from-ep-blue-night to-ep-cyan text-white font-bold rounded-full shadow-lg shadow-cyan-500/40 hover:-translate-y-1 hover:scale-105 transition-all flex items-center gap-3 animate-pulse-slow">
+                    <span class="w-6 h-6 bg-white text-ep-blue-night rounded-full flex items-center justify-center text-xs">${totalItems}</span>
+                    Passer la commande
+                </a>`;
+            } else {
+                orderBtnContainer.innerHTML = '';
+            }
+        }
     },
 
     // Initialize event listeners
     init: function() {
         const self = this;
 
+        // Add styling for slow pulse
+        if(!document.getElementById('ep-custom-styles')) {
+            let style = document.createElement('style');
+            style.id = 'ep-custom-styles';
+            style.innerHTML = `@keyframes pulse-slow { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } } .animate-pulse-slow { animation: pulse-slow 3s infinite; }`;
+            document.head.appendChild(style);
+        }
+
         // Initial UI update
         this.updateCartUI();
 
-        // Single add button click
+        // Add/Remove button click
         document.addEventListener('click', function(e) {
-            // Check if clicking on the add button or inside it
             let btn = e.target.closest('.ep-add-to-quote-btn');
             if (btn && !btn.hasAttribute('disabled')) {
                 e.preventDefault();
                 let productId = btn.getAttribute('data-product-id');
+
+                // If it's a remove action (from table)
+                if (btn.getAttribute('data-action') === 'remove') {
+                    self.removeItem(productId);
+                    self.showNotification('Produit retiré du devis.', 'bg-red-500');
+                    return;
+                }
+
+                // Add action
                 let productName = btn.getAttribute('data-product-name');
                 let productImage = btn.getAttribute('data-product-image');
 
-                // Find quantity input if exists near the button
+                // Find quantity input
                 let row = btn.closest('tr') || btn.closest('.product-card');
                 let qtyInput = row ? row.querySelector('.ep-qty-input') : null;
                 let quantity = qtyInput ? qtyInput.value : 1;
 
                 self.addItem(productId, productName, productImage, quantity);
-
-                // Show a small toast/notification
-                self.showNotification('Produit ajouté au devis !');
+                self.showNotification('Produit ajouté au devis !', 'bg-ep-cyan');
             }
         });
 
-        // Custom event for updating quantities
+        // Quantity change listeners (both for cart page and devis table)
         document.addEventListener('change', function(e) {
-            if(e.target.classList.contains('ep-qty-input') && e.target.closest('.ep-cart-row')) {
-                let row = e.target.closest('.ep-cart-row');
-                let productId = row.getAttribute('data-product-id');
-                self.updateQuantity(productId, e.target.value);
+            if(e.target.classList.contains('ep-qty-input')) {
+                let row = e.target.closest('.ep-cart-row') || e.target.closest('tr');
+                if(row) {
+                    let productId = row.getAttribute('data-product-id') || row.querySelector('.ep-add-to-quote-btn')?.getAttribute('data-product-id');
+                    if (productId && self.isInCart(productId)) {
+                        self.updateQuantity(productId, e.target.value);
+                        // show subtle notification
+                        self.showNotification('Quantité mise à jour', 'bg-gray-800');
+                    }
+                }
             }
         });
     },

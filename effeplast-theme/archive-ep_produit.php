@@ -89,12 +89,12 @@ get_header();
                             // Retrieve custom meta
                             $price = get_post_meta( get_the_ID(), '_ep_product_price', true );
                             ?>
-                            <article id="post-<?php the_ID(); ?>" <?php post_class('bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-modern transition-all duration-300 group border border-gray-50 flex flex-col'); ?>>
+                            <article id="post-<?php the_ID(); ?>" <?php post_class('relative bg-white rounded-[2rem] overflow-hidden shadow-xl hover:shadow-cyan-500/20 transition-all duration-500 transform hover:-translate-y-2 group border border-gray-100 flex flex-col h-[450px]'); ?>>
 
-                                <a href="<?php the_permalink(); ?>" class="block relative aspect-square bg-gray-50 p-6 flex-shrink-0">
-                                    <div class="absolute inset-0 bg-gradient-to-t from-ep-blue-night/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="block h-1/2 bg-gray-50 relative p-8 flex flex-col items-center justify-center overflow-hidden">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-ep-blue-night/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                     <?php if ( has_post_thumbnail() ) : ?>
-                                        <?php the_post_thumbnail( 'medium', array( 'class' => 'w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500' ) ); ?>
+                                        <?php the_post_thumbnail( 'large', array( 'class' => 'max-h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-700' ) ); ?>
                                     <?php else : ?>
                                         <div class="w-full h-full flex items-center justify-center text-gray-300">
                                             <i class="fas fa-box text-6xl group-hover:text-ep-cyan transition-colors duration-300"></i>
@@ -107,36 +107,39 @@ get_header();
                                     if ( $product_terms && ! is_wp_error( $product_terms ) ) :
                                         $term = array_pop($product_terms);
                                     ?>
-                                    <div class="absolute top-4 left-4">
+                                    <div class="absolute top-4 right-4">
                                         <span class="bg-white/90 backdrop-blur text-xs font-bold text-ep-blue-night px-3 py-1 rounded-full shadow-sm border border-gray-100">
                                             <?php echo esc_html( $term->name ); ?>
                                         </span>
                                     </div>
                                     <?php endif; ?>
-                                </a>
+                                </div>
 
-                                <div class="p-6 flex flex-col flex-grow">
-                                    <h2 class="text-lg font-bold text-ep-blue-night mb-2 line-clamp-2 group-hover:text-ep-cyan transition-colors">
-                                        <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
-                                    </h2>
+                                <div class="h-1/2 p-6 flex flex-col justify-between relative z-10 bg-white border-t border-gray-100">
+                                    <div>
+                                        <span class="text-[10px] text-gray-400 font-bold tracking-widest uppercase mb-1 block">Ref: EP-<?php echo get_the_ID(); ?></span>
+                                        <h2 class="text-xl font-black text-ep-blue-night mb-2 line-clamp-2 leading-tight group-hover:text-ep-cyan transition-colors">
+                                            <?php the_title(); ?>
+                                        </h2>
+                                    </div>
 
-                                    <div class="mt-auto pt-4 border-t border-gray-100 flex items-center justify-between">
+                                    <div class="flex items-center justify-between mt-auto pt-2">
                                         <div>
                                             <?php if ( $price ) : ?>
-                                                <span class="font-black text-gray-800"><?php echo esc_html( $price ); ?> MAD</span>
+                                                <span class="text-xl font-black text-gray-800 tracking-tight"><?php echo esc_html( $price ); ?> <span class="text-xs text-gray-400 font-medium">MAD</span></span>
                                             <?php else : ?>
-                                                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Sur Devis</span>
+                                                <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Sur Devis</span>
                                             <?php endif; ?>
                                         </div>
                                         <?php
                                         $image_src = get_the_post_thumbnail_url(get_the_ID(), 'thumbnail');
+                                        if(!$image_src) $image_src = 'https://via.placeholder.com/600x800?text=EP';
                                         ?>
-                                        <button class="ep-add-to-quote-btn w-10 h-10 rounded-full bg-ep-cyan/10 text-ep-cyan flex items-center justify-center hover:bg-ep-cyan hover:text-white transition-colors duration-300 tooltip-trigger"
-                                                title="Ajouter au devis"
+                                        <button class="ep-add-to-quote-btn px-4 py-2 rounded-full bg-ep-blue-night text-white flex items-center justify-center gap-2 hover:bg-ep-cyan hover:scale-105 transition-all duration-300 shadow-md text-[11px] font-bold focus:outline-none flex-shrink-0 whitespace-nowrap"
                                                 data-product-id="<?php the_ID(); ?>"
                                                 data-product-name="<?php echo esc_attr(get_the_title()); ?>"
                                                 data-product-image="<?php echo esc_url($image_src); ?>">
-                                            <i class="fas fa-plus"></i>
+                                            <i class="fas fa-plus"></i> <span class="btn-text">Au devis</span>
                                         </button>
                                     </div>
                                 </div>

@@ -334,6 +334,10 @@ get_header();
                 });
                 </script>
 
+                <div id="ep-passer-commande-container">
+                    <!-- Dynamically populated by quote-system.js -->
+                </div>
+
             </div>
             <!-- End Modern Interface -->
 
