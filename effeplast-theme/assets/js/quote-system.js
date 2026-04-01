@@ -92,21 +92,38 @@ const QuoteSystem = {
         let addButtons = document.querySelectorAll('.ep-add-to-quote-btn');
         addButtons.forEach(btn => {
             let productId = btn.getAttribute('data-product-id');
+
+            // Check if it's a slider button (which has a slightly different layout, rounded pills)
+            let isSliderBtn = btn.classList.contains('whitespace-nowrap');
+
             if (this.isInCart(productId)) {
                 btn.classList.add('bg-gray-600', 'hover:bg-gray-500', 'cursor-not-allowed');
-                btn.classList.remove('bg-[#1762A4]', 'hover:bg-ep-cyan');
-                btn.innerHTML = 'Déjà ajouté';
+                btn.classList.remove('bg-[#1762A4]', 'hover:bg-ep-cyan', 'bg-ep-blue-night');
+
+                if (isSliderBtn) {
+                    btn.innerHTML = '<i class="fas fa-check"></i> <span class="btn-text">Déjà ajouté</span>';
+                } else {
+                    btn.innerHTML = 'Déjà ajouté';
+                }
+
                 btn.setAttribute('disabled', 'disabled');
 
-                // Show "Voir la liste" link if it exists next to it
+                // Show "Voir la liste" link if it exists next to it (specifically for page-devis table)
                 let viewLinkContainer = btn.parentElement.nextElementSibling;
                 if(viewLinkContainer && viewLinkContainer.classList.contains('ep-view-list-container')) {
                     viewLinkContainer.innerHTML = '<a href="/panier-devis" class="text-sm text-gray-300 hover:text-white underline underline-offset-2">Voir la liste</a>';
                 }
             } else {
                 btn.classList.remove('bg-gray-600', 'hover:bg-gray-500', 'cursor-not-allowed');
-                btn.classList.add('bg-[#1762A4]', 'hover:bg-ep-cyan');
-                btn.innerHTML = 'Ajouter au devis';
+                // Use default color based on btn type
+                if (isSliderBtn) {
+                    btn.classList.add('bg-ep-blue-night', 'hover:bg-ep-cyan');
+                    btn.innerHTML = '<i class="fas fa-plus"></i> <span class="btn-text">Au devis</span>';
+                } else {
+                    btn.classList.add('bg-[#1762A4]', 'hover:bg-ep-cyan');
+                    btn.innerHTML = 'Ajouter au devis';
+                }
+
                 btn.removeAttribute('disabled');
 
                 let viewLinkContainer = btn.parentElement.nextElementSibling;

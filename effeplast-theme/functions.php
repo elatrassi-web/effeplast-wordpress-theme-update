@@ -532,12 +532,11 @@ function ep_fetch_slider_products() {
                             <?php endif; ?>
 
                             <!-- Integration with quote system JS -->
-                            <button class="ep-add-to-quote-btn w-12 h-12 rounded-full bg-ep-blue-night text-white flex items-center justify-center hover:bg-ep-cyan hover:scale-110 transition-all duration-300 shadow-md tooltip-trigger focus:outline-none"
-                                    title="Ajouter au devis"
+                            <button class="ep-add-to-quote-btn px-5 py-2.5 rounded-full bg-ep-blue-night text-white flex items-center justify-center gap-2 hover:bg-ep-cyan hover:scale-105 transition-all duration-300 shadow-md text-sm font-bold focus:outline-none flex-shrink-0 whitespace-nowrap"
                                     data-product-id="<?php the_ID(); ?>"
                                     data-product-name="<?php echo esc_attr(get_the_title()); ?>"
                                     data-product-image="<?php echo esc_url($image_src); ?>">
-                                <i class="fas fa-plus"></i>
+                                <i class="fas fa-plus"></i> <span class="btn-text">Au devis</span>
                             </button>
                         </div>
                     </div>
