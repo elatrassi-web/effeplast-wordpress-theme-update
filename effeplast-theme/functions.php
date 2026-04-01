@@ -364,7 +364,39 @@ function ep_handle_submit_quote() {
         wp_die( 'Votre demande de devis est vide.' );
     }
 
-    // Build the email content
+    // --- 1. ENREGISTREMENT DANS LA BASE DE DONNÉES (CPT `ep_commande_devis`) ---
+
+    // Create the post title
+    $post_title = 'Devis - ' . $company . ' - ' . wp_date( 'd/m/Y H:i' );
+
+    $post_data = array(
+        'post_title'   => $post_title,
+        'post_status'  => 'publish',
+        'post_type'    => 'ep_commande_devis',
+        'post_author'  => 1 // usually admin
+    );
+
+    // Insert the post into the database
+    $post_id = wp_insert_post( $post_data );
+
+    if ( ! is_wp_error( $post_id ) ) {
+        // Save the client details as post meta
+        update_post_meta( $post_id, '_ep_devis_company', $company );
+        update_post_meta( $post_id, '_ep_devis_name', $name );
+        update_post_meta( $post_id, '_ep_devis_email', $email );
+        update_post_meta( $post_id, '_ep_devis_phone', $phone );
+        update_post_meta( $post_id, '_ep_devis_message', $message );
+
+        // Save the cart items as post meta (stored as a serialized array/JSON)
+        update_post_meta( $post_id, '_ep_devis_items', $quote_data_json );
+
+        // Mark status as 'Nouveau'
+        update_post_meta( $post_id, '_ep_devis_status', 'nouveau' );
+    }
+
+    // --- 2. ENVOI DES EMAILS (Boutique et Client) ---
+
+    // Email Boutique (Admin)
     $to_admin = 'effeplast.kenitra@gmail.com';
     $subject_admin = 'Nouvelle Demande de Devis - ' . $company;
 
@@ -399,7 +431,7 @@ function ep_handle_submit_quote() {
     // Send Email to Admin
     $mail_sent = wp_mail( $to_admin, $subject_admin, $body_admin, $headers );
 
-    // Optional: Send auto-reply to client
+    // Email Client (Auto-reply)
     $subject_client = 'Confirmation de votre demande de devis - Effe Plast';
     $body_client = '<h2>Bonjour ' . $name . ',</h2>';
     $body_client .= '<p>Nous avons bien reçu votre demande de devis concernant les produits suivants. Notre équipe commerciale vous contactera très rapidement avec une offre personnalisée.</p>';
@@ -408,7 +440,8 @@ function ep_handle_submit_quote() {
 
     wp_mail( $email, $subject_client, $body_client, array('Content-Type: text/html; charset=UTF-8') );
 
-    // Redirect to a success page or back to the quote page with a success query arg
+    // --- 3. REDIRECTION ---
+    // Redirect back to the quote page with a success query arg
     $redirect_url = add_query_arg( 'quote_success', '1', home_url('/panier-devis') );
     wp_redirect( $redirect_url );
     exit();
@@ -561,3 +594,336 @@ function ep_fetch_slider_products() {
 }
 add_action( 'wp_ajax_ep_fetch_slider_products', 'ep_fetch_slider_products' );
 add_action( 'wp_ajax_nopriv_ep_fetch_slider_products', 'ep_fetch_slider_products' );
+
+/**
+ * Register Custom Post Type: Commandes Devis (Private for admin only)
+ */
+function ep_register_commande_devis_cpt() {
+    $labels = array(
+        'name'                  => _x( 'Demandes de Devis', 'Post Type General Name', 'effeplast' ),
+        'singular_name'         => _x( 'Demande de Devis', 'Post Type Singular Name', 'effeplast' ),
+        'menu_name'             => __( 'Devis Reçus', 'effeplast' ),
+        'all_items'             => __( 'Tous les Devis', 'effeplast' ),
+        'view_item'             => __( 'Voir le Devis', 'effeplast' ),
+        'not_found'             => __( 'Aucun devis trouvé', 'effeplast' ),
+    );
+    $args = array(
+        'label'                 => __( 'Demande de Devis', 'effeplast' ),
+        'labels'                => $labels,
+        'supports'              => array( 'title', 'custom-fields' ), // Title will be "Devis - [Company Name] - [Date]"
+        'hierarchical'          => false,
+        'public'                => false, // Private!
+        'show_ui'               => false, // We will build a completely custom admin page instead of the default post list
+        'show_in_menu'          => false,
+        'can_export'            => true,
+        'has_archive'           => false,
+        'exclude_from_search'   => true,
+        'publicly_queryable'    => false,
+        'capability_type'       => 'post',
+    );
+    register_post_type( 'ep_commande_devis', $args );
+}
+add_action( 'init', 'ep_register_commande_devis_cpt', 0 );
+
+/**
+ * Custom Admin Menu for Quotes Dashboard
+ */
+function ep_add_devis_admin_menu() {
+    add_menu_page(
+        'Devis Reçus', // Page title
+        'Devis Reçus', // Menu title
+        'manage_options', // Capability
+        'ep-devis-dashboard', // Menu slug
+        'ep_devis_dashboard_page', // Callback function
+        'dashicons-clipboard', // Icon
+        6 // Position
+    );
+}
+add_action( 'admin_menu', 'ep_add_devis_admin_menu' );
+
+/**
+ * Main Callback for Quotes Dashboard Page
+ */
+function ep_devis_dashboard_page() {
+    // Determine view: list or single
+    $action = isset($_GET['action']) ? sanitize_text_field($_GET['action']) : 'list';
+    $post_id = isset($_GET['id']) ? absint($_GET['id']) : 0;
+
+    echo '<div class="wrap" style="max-width: 1200px;">';
+    echo '<h1>Gestion des Devis Reçus</h1>';
+
+    if ( $action === 'view' && $post_id > 0 ) {
+        ep_render_single_devis_view( $post_id );
+    } else {
+        ep_render_devis_list_view();
+    }
+
+    echo '</div>';
+}
+
+/**
+ * Render the Devis List Dashboard
+ */
+function ep_render_devis_list_view() {
+    $filter = isset($_GET['filter']) ? sanitize_text_field($_GET['filter']) : 'all';
+    $custom_date = isset($_GET['custom_date']) ? sanitize_text_field($_GET['custom_date']) : '';
+
+    // Base Query Args
+    $args = array(
+        'post_type'      => 'ep_commande_devis',
+        'posts_per_page' => 50,
+        'post_status'    => 'publish',
+        'orderby'        => 'date',
+        'order'          => 'DESC'
+    );
+
+    // Apply Date Filtering
+    if ( !empty($custom_date) ) {
+        // Specific custom date chosen from input type=date
+        $args['date_query'] = array(
+            array(
+                'year'  => date( 'Y', strtotime( $custom_date ) ),
+                'month' => date( 'm', strtotime( $custom_date ) ),
+                'day'   => date( 'd', strtotime( $custom_date ) ),
+            ),
+        );
+    } else {
+        // Preset filters
+        switch ($filter) {
+            case 'today':
+                $args['date_query'] = array(
+                    array(
+                        'year'  => date( 'Y' ),
+                        'month' => date( 'm' ),
+                        'day'   => date( 'd' ),
+                    ),
+                );
+                break;
+            case 'yesterday':
+                $args['date_query'] = array(
+                    array(
+                        'year'  => date( 'Y', strtotime( '-1 days' ) ),
+                        'month' => date( 'm', strtotime( '-1 days' ) ),
+                        'day'   => date( 'd', strtotime( '-1 days' ) ),
+                    ),
+                );
+                break;
+            case 'last7':
+                $args['date_query'] = array(
+                    array(
+                        'after' => '1 week ago',
+                    ),
+                );
+                break;
+            case 'last30':
+                $args['date_query'] = array(
+                    array(
+                        'after' => '1 month ago',
+                    ),
+                );
+                break;
+        }
+    }
+
+    $devis_query = new WP_Query( $args );
+
+    // UI Filters Bar
+    ?>
+    <div style="background: #fff; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #ccd0d4; box-shadow: 0 1px 1px rgba(0,0,0,.04);">
+        <form method="GET" action="admin.php" style="display:flex; flex-wrap: wrap; gap: 15px; align-items: center;">
+            <input type="hidden" name="page" value="ep-devis-dashboard">
+
+            <h3 style="margin: 0; padding-right: 10px; font-size: 14px;">Filtrer par date :</h3>
+
+            <div style="display: flex; gap: 10px;">
+                <button type="submit" name="filter" value="today" class="button <?php echo $filter == 'today' && empty($custom_date) ? 'button-primary' : ''; ?>">Aujourd'hui</button>
+                <button type="submit" name="filter" value="yesterday" class="button <?php echo $filter == 'yesterday' && empty($custom_date) ? 'button-primary' : ''; ?>">Hier</button>
+                <button type="submit" name="filter" value="last7" class="button <?php echo $filter == 'last7' && empty($custom_date) ? 'button-primary' : ''; ?>">7 derniers jours</button>
+                <button type="submit" name="filter" value="last30" class="button <?php echo $filter == 'last30' && empty($custom_date) ? 'button-primary' : ''; ?>">Le mois dernier</button>
+                <a href="?page=ep-devis-dashboard&filter=all" class="button <?php echo $filter == 'all' && empty($custom_date) ? 'button-primary' : ''; ?>">Tout voir</a>
+            </div>
+
+            <div style="margin-left: 20px; display: flex; align-items: center; gap: 10px; border-left: 1px solid #ddd; padding-left: 20px;">
+                <label for="custom_date" style="font-weight: 600;">Date spécifique :</label>
+                <input type="date" name="custom_date" id="custom_date" value="<?php echo esc_attr($custom_date); ?>" style="line-height: normal;">
+                <button type="submit" class="button">Chercher</button>
+                <?php if(!empty($custom_date)): ?>
+                    <a href="?page=ep-devis-dashboard" style="color: #d63638; text-decoration: none;">&times; Effacer</a>
+                <?php endif; ?>
+            </div>
+        </form>
+    </div>
+
+    <!-- Data Table -->
+    <table class="wp-list-table widefat fixed striped table-view-list">
+        <thead>
+            <tr>
+                <th class="manage-column column-title">Réf. Devis</th>
+                <th class="manage-column">Date & Heure</th>
+                <th class="manage-column">Société</th>
+                <th class="manage-column">Contact</th>
+                <th class="manage-column">Statut</th>
+                <th class="manage-column" style="width: 150px; text-align: center;">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            if ( $devis_query->have_posts() ) {
+                while ( $devis_query->have_posts() ) {
+                    $devis_query->the_post();
+                    $post_id = get_the_ID();
+
+                    $company = get_post_meta( $post_id, '_ep_devis_company', true );
+                    $name = get_post_meta( $post_id, '_ep_devis_name', true );
+                    $status = get_post_meta( $post_id, '_ep_devis_status', true );
+
+                    $status_badge = $status == 'lu' ? '<span style="background:#e5f5fa; color:#005a9e; padding:3px 8px; border-radius:12px; font-size:12px; font-weight:600;">Lu</span>' : '<span style="background:#f0b849; color:#fff; padding:3px 8px; border-radius:12px; font-size:12px; font-weight:600;">Nouveau</span>';
+                    ?>
+                    <tr>
+                        <td><strong>#EP-<?php echo $post_id; ?></strong></td>
+                        <td><?php echo get_the_date('d/m/Y') . ' à ' . get_the_time('H:i'); ?></td>
+                        <td><?php echo esc_html($company); ?></td>
+                        <td><?php echo esc_html($name); ?></td>
+                        <td><?php echo $status_badge; ?></td>
+                        <td style="text-align: center;">
+                            <a href="?page=ep-devis-dashboard&action=view&id=<?php echo $post_id; ?>" class="button button-primary">Voir les détails</a>
+                        </td>
+                    </tr>
+                    <?php
+                }
+            } else {
+                echo '<tr><td colspan="6" style="text-align: center; padding: 30px;">Aucun devis trouvé pour cette période.</td></tr>';
+            }
+            wp_reset_postdata();
+            ?>
+        </tbody>
+    </table>
+    <?php
+}
+
+/**
+ * Render Single Devis Details Page
+ */
+function ep_render_single_devis_view($post_id) {
+    // Check if post exists and is of correct type
+    $post = get_post($post_id);
+    if(!$post || $post->post_type !== 'ep_commande_devis') {
+        echo '<div class="notice notice-error"><p>Devis introuvable.</p></div>';
+        echo '<a href="?page=ep-devis-dashboard" class="button">&laquo; Retour à la liste</a>';
+        return;
+    }
+
+    // Mark as read
+    update_post_meta($post_id, '_ep_devis_status', 'lu');
+
+    // Get Meta
+    $company = get_post_meta($post_id, '_ep_devis_company', true);
+    $name = get_post_meta($post_id, '_ep_devis_name', true);
+    $email = get_post_meta($post_id, '_ep_devis_email', true);
+    $phone = get_post_meta($post_id, '_ep_devis_phone', true);
+    $message = get_post_meta($post_id, '_ep_devis_message', true);
+    $items_json = get_post_meta($post_id, '_ep_devis_items', true);
+    $items = json_decode($items_json, true);
+
+    // Style for the admin view
+    ?>
+    <style>
+        .ep-admin-card { background: #fff; border: 1px solid #ccd0d4; box-shadow: 0 1px 1px rgba(0,0,0,.04); padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .ep-admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .ep-admin-label { font-size: 12px; font-weight: 600; color: #646970; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; display: block; }
+        .ep-admin-val { font-size: 15px; color: #1d2327; margin: 0 0 15px 0; }
+        .ep-prod-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .ep-prod-table th, .ep-prod-table td { padding: 12px 15px; border-bottom: 1px solid #f0f0f1; text-align: left; }
+        .ep-prod-table th { background: #f6f7f7; font-weight: 600; color: #1d2327; }
+    </style>
+
+    <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+        <a href="?page=ep-devis-dashboard" class="button">&laquo; Retour à la liste</a>
+        <span style="font-size: 16px; color: #646970;">Reçu le : <strong><?php echo get_the_date('d F Y', $post) . ' à ' . get_the_time('H:i', $post); ?></strong></span>
+    </div>
+
+    <div class="ep-admin-grid">
+        <!-- Client Details -->
+        <div class="ep-admin-card">
+            <h2 style="margin-top: 0; padding-bottom: 10px; border-bottom: 1px solid #f0f0f1; font-size: 18px;">Coordonnées du client</h2>
+
+            <span class="ep-admin-label">Société / Entreprise</span>
+            <p class="ep-admin-val"><strong><?php echo esc_html($company); ?></strong></p>
+
+            <span class="ep-admin-label">Nom du contact</span>
+            <p class="ep-admin-val"><?php echo esc_html($name); ?></p>
+
+            <span class="ep-admin-label">Email</span>
+            <p class="ep-admin-val"><a href="mailto:<?php echo esc_attr($email); ?>"><?php echo esc_html($email); ?></a></p>
+
+            <span class="ep-admin-label">Téléphone</span>
+            <p class="ep-admin-val"><a href="tel:<?php echo esc_attr($phone); ?>"><?php echo esc_html($phone); ?></a></p>
+        </div>
+
+        <!-- Message Details -->
+        <div class="ep-admin-card">
+            <h2 style="margin-top: 0; padding-bottom: 10px; border-bottom: 1px solid #f0f0f1; font-size: 18px;">Notes / Message</h2>
+            <?php if(!empty($message)): ?>
+                <div style="background: #f9f9f9; padding: 15px; border-left: 4px solid #00B4D8; font-style: italic; color: #555;">
+                    <?php echo nl2br(esc_html($message)); ?>
+                </div>
+            <?php else: ?>
+                <p style="color: #999;">Aucun message additionnel.</p>
+            <?php endif; ?>
+        </div>
+    </div>
+
+    <!-- Products List -->
+    <div class="ep-admin-card">
+        <h2 style="margin-top: 0; padding-bottom: 10px; font-size: 18px; display: flex; align-items: center; justify-content: space-between;">
+            Liste des Produits Demandés
+            <span style="background: #00B4D8; color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: bold;"><?php echo count($items); ?> Article(s)</span>
+        </h2>
+
+        <?php if(!empty($items) && is_array($items)): ?>
+            <table class="ep-prod-table">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">Image</th>
+                        <th style="width: 120px;">Référence</th>
+                        <th>Nom du produit</th>
+                        <th style="width: 100px; text-align: center;">Quantité</th>
+                        <th style="width: 120px; text-align: center;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach($items as $item): ?>
+                    <tr>
+                        <td>
+                            <?php if(!empty($item['image'])): ?>
+                                <img src="<?php echo esc_url($item['image']); ?>" style="width: 50px; height: 50px; object-fit: contain; background: #f6f7f7; border: 1px solid #ddd; border-radius: 4px; padding: 2px;">
+                            <?php else: ?>
+                                <div style="width: 50px; height: 50px; background: #eee; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #999;">
+                                    <span class="dashicons dashicons-format-image"></span>
+                                </div>
+                            <?php endif; ?>
+                        </td>
+                        <td><strong>EP-<?php echo esc_html($item['id']); ?></strong></td>
+                        <td style="font-weight: 500; color: #1d2327;"><?php echo esc_html($item['name']); ?></td>
+                        <td style="text-align: center; font-size: 16px; font-weight: bold; color: #00B4D8;">
+                            <?php echo esc_html($item['quantity']); ?>
+                        </td>
+                        <td style="text-align: center;">
+                            <a href="<?php echo get_edit_post_link($item['id']); ?>" target="_blank" class="button button-small">Voir le produit</a>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php else: ?>
+            <p style="color: red;">Erreur lors de la lecture des produits.</p>
+        <?php endif; ?>
+    </div>
+
+    <div style="margin-top: 30px; text-align: right;">
+        <a href="mailto:<?php echo esc_attr($email); ?>?subject=Suite à votre demande de devis sur Effe Plast" class="button button-primary button-large" style="background: #00B4D8; border-color: #00B4D8;">
+            <span class="dashicons dashicons-email" style="margin-top: 4px; margin-right: 5px;"></span> Répondre au client
+        </a>
+    </div>
+    <?php
+}
