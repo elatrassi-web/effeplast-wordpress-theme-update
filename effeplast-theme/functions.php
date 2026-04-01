@@ -506,7 +506,7 @@ function ep_fetch_slider_products() {
             ?>
             <div class="swiper-slide group">
                 <div class="relative w-full h-full bg-white rounded-[2rem] overflow-hidden shadow-xl transition-all duration-500 transform group-hover:-translate-y-4 group-hover:shadow-cyan-500/40">
-                    <a href="<?php the_permalink(); ?>" class="block h-3/5 bg-gray-50 relative p-8 flex items-center justify-center overflow-hidden">
+                    <div class="block h-3/5 bg-gray-50 relative p-8 flex items-center justify-center overflow-hidden">
                         <div class="absolute inset-0 bg-gradient-to-t from-ep-blue-night/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         <img src="<?php echo esc_url($image_src); ?>" alt="<?php the_title_attribute(); ?>" class="max-h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-700">
                         <?php if($cat_name): ?>
@@ -514,13 +514,13 @@ function ep_fetch_slider_products() {
                                 <?php echo esc_html($cat_name); ?>
                             </span>
                         <?php endif; ?>
-                    </a>
+                    </div>
 
                     <div class="h-2/5 p-8 flex flex-col justify-between relative z-10 bg-white border-t border-gray-100">
                         <div>
                             <span class="text-xs text-gray-400 font-bold tracking-widest uppercase mb-1 block">Ref: EP-<?php echo get_the_ID(); ?></span>
                             <h2 class="text-2xl font-black text-ep-blue-night mb-2 line-clamp-2 leading-tight group-hover:text-ep-cyan transition-colors">
-                                <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
+                                <?php the_title(); ?>
                             </h2>
                         </div>
 

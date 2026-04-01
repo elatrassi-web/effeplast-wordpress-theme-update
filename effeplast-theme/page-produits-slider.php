@@ -10,45 +10,40 @@
 get_header();
 ?>
 
-<!-- Minimalist Header Override for this specific page to keep focus on the slider -->
+<!-- Overrides removed to use light theme -->
 <style>
-    .site-header { background: rgba(11, 28, 56, 0.95) !important; border-bottom: 1px solid rgba(255,255,255,0.1) !important; }
-    .site-header a:not(.bg-ep-blue-night), .site-header span, .site-header i:not(.bg-ep-cyan) { color: white !important; }
-    .site-header .bg-ep-blue-night { background: rgba(255,255,255,0.1) !important; border: 1px solid rgba(255,255,255,0.2) !important; }
-    .site-header .bg-gradient-to-r { background: #00B4D8 !important; }
-    #masthead .w-40 img { filter: brightness(0) invert(1); } /* Invert logo */
-    body { background-color: #0B1C38; overflow-x: hidden; } /* Dark theme base */
+    body { background-color: #F8FAFC; overflow-x: hidden; } /* Light theme base to match brand */
 </style>
 
-<!-- Immersive Dark Mode Section -->
-<div class="relative min-h-[90vh] flex flex-col items-center justify-center pt-32 pb-16 overflow-hidden">
+<!-- Immersive Light Mode Section -->
+<div class="relative min-h-[90vh] flex flex-col items-center justify-center pt-32 pb-16 overflow-hidden bg-ep-gray-light">
 
-    <!-- Abstract 3D Background Lighting -->
+    <!-- Abstract 3D Background Lighting (Light Mode) -->
     <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        <div class="absolute top-1/4 left-1/4 w-[40rem] h-[40rem] bg-ep-primary rounded-full mix-blend-screen filter blur-[150px] opacity-30 animate-blob"></div>
-        <div class="absolute bottom-1/4 right-1/4 w-[40rem] h-[40rem] bg-ep-cyan rounded-full mix-blend-screen filter blur-[150px] opacity-20 animate-blob animation-delay-2000"></div>
-        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+CjxwYXRoIGQ9Ik0wIDBoNDB2NDBIMHoiIGZpbGw9Im5vbmUiLz4KPHBhdGggZD0iTTAgMGw0MCA0ME00MCAwbC00MCA0MCIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjAuNSIgc3Ryb2tlLW9wYWNpdHk9IjAuMDUiLz4KPC9zdmc+')] opacity-20"></div>
+        <div class="absolute top-1/4 right-1/4 w-[40rem] h-[40rem] bg-ep-cyan rounded-full mix-blend-multiply filter blur-[150px] opacity-20 animate-blob"></div>
+        <div class="absolute bottom-1/4 left-1/4 w-[40rem] h-[40rem] bg-blue-300 rounded-full mix-blend-multiply filter blur-[150px] opacity-20 animate-blob animation-delay-2000"></div>
+        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+CjxwYXRoIGQ9Ik0wIDBoNDB2NDBIMHoiIGZpbGw9Im5vbmUiLz4KPHBhdGggZD0iTTAgMGw0MCA0ME00MCAwbC00MCA0MCIgc3Ryb2tlPSIjZTllOWU5IiBzdHJva2Utd2lkdGg9IjAuNSIgc3Ryb2tlLW9wYWNpdHk9IjAuNSIvPgo8L3N2Zz4=')] opacity-50"></div>
 
         <!-- Glowing central stage -->
-        <div class="absolute top-[60%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-7xl h-32 bg-ep-cyan/20 blur-[100px] rounded-[100%]"></div>
+        <div class="absolute top-[60%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-7xl h-32 bg-white blur-[100px] rounded-[100%] shadow-[0_0_100px_rgba(0,180,216,0.3)]"></div>
     </div>
 
     <!-- Filtering UI Container -->
     <div class="container mx-auto px-4 lg:px-8 relative z-20 mb-12">
         <div class="text-center mb-10">
-            <h1 class="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 mb-4 tracking-tight drop-shadow-lg">
+            <h1 class="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-ep-blue-night to-ep-cyan mb-4 tracking-tight drop-shadow-sm">
                 Notre Collection Premium
             </h1>
-            <p class="text-blue-200/80 font-light text-lg md:text-xl max-w-2xl mx-auto">
+            <p class="text-gray-600 font-medium text-lg md:text-xl max-w-2xl mx-auto">
                 Explorez notre catalogue de flacons et bidons. Faites glisser pour découvrir ou utilisez les filtres ci-dessous.
             </p>
         </div>
 
-        <div class="max-w-4xl mx-auto bg-white/10 backdrop-blur-xl border border-white/20 p-4 md:p-6 rounded-[2rem] shadow-2xl flex flex-col md:flex-row gap-4 items-center justify-between">
+        <div class="max-w-4xl mx-auto bg-white/80 backdrop-blur-xl border border-gray-100 p-4 md:p-6 rounded-[2rem] shadow-modern flex flex-col md:flex-row gap-4 items-center justify-between">
 
             <!-- Category Pills -->
             <div class="flex flex-wrap items-center justify-center gap-2 md:gap-3 w-full md:w-auto overflow-x-auto pb-2 md:pb-0" id="ep-slider-categories">
-                <button class="ep-cat-btn px-5 py-2.5 rounded-full text-sm font-bold tracking-wide transition-all bg-ep-cyan text-white shadow-[0_0_15px_rgba(0,180,216,0.5)] border border-ep-cyan scale-105" data-cat="all">Tous</button>
+                <button class="ep-cat-btn px-5 py-2.5 rounded-full text-sm font-bold tracking-wide transition-all bg-ep-cyan text-white shadow-md border border-ep-cyan scale-105" data-cat="all">Tous</button>
                 <?php
                 $categories = get_terms( array(
                     'taxonomy'   => 'ep_product_cat',
@@ -56,7 +51,7 @@ get_header();
                 ) );
                 if ( ! empty( $categories ) && ! is_wp_error( $categories ) ) {
                     foreach ( $categories as $category ) {
-                        echo '<button class="ep-cat-btn px-5 py-2.5 rounded-full text-sm font-bold tracking-wide transition-all bg-transparent text-gray-300 border border-white/20 hover:border-ep-cyan hover:text-white" data-cat="' . esc_attr($category->slug) . '">' . esc_html($category->name) . '</button>';
+                        echo '<button class="ep-cat-btn px-5 py-2.5 rounded-full text-sm font-bold tracking-wide transition-all bg-gray-50 text-gray-600 border border-gray-200 hover:border-ep-cyan hover:text-ep-cyan" data-cat="' . esc_attr($category->slug) . '">' . esc_html($category->name) . '</button>';
                     }
                 }
                 ?>
@@ -67,7 +62,7 @@ get_header();
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <i class="fas fa-search text-gray-400 group-focus-within:text-ep-cyan transition-colors"></i>
                 </div>
-                <input type="text" id="ep-slider-search" placeholder="Rechercher..." class="w-full pl-11 pr-4 py-3 bg-black/40 border border-white/10 rounded-full text-white placeholder-gray-500 font-medium focus:outline-none focus:ring-1 focus:ring-ep-cyan focus:border-ep-cyan transition-all shadow-inner">
+                <input type="text" id="ep-slider-search" placeholder="Rechercher..." class="w-full pl-11 pr-4 py-3 bg-white border border-gray-200 rounded-full text-gray-800 placeholder-gray-400 font-medium focus:outline-none focus:ring-1 focus:ring-ep-cyan focus:border-ep-cyan transition-all shadow-sm">
 
                 <!-- Loading spinner (hidden by default) -->
                 <div id="ep-slider-loader" class="absolute inset-y-0 right-0 pr-4 flex items-center hidden">
