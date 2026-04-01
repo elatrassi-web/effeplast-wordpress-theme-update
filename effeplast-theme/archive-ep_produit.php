@@ -1,6 +1,7 @@
 <?php
 /**
  * The template for displaying archive pages for Produits (Custom Post Type)
+ * Uses the 3D Slider design
  *
  * @package EffePlast
  */
@@ -8,166 +9,139 @@
 get_header();
 ?>
 
-<div class="bg-ep-gray-light min-h-screen pb-24">
-    <!-- Page Header -->
-    <div class="bg-ep-blue-night pt-32 pb-24 relative overflow-hidden">
-        <!-- Abstract BG -->
-        <div class="absolute inset-0 z-0 opacity-20">
-            <div class="absolute top-0 right-0 w-1/2 h-full bg-ep-cyan skew-x-12 translate-x-32 hidden lg:block opacity-10"></div>
-            <div class="absolute top-1/2 left-1/4 w-96 h-96 bg-ep-primary rounded-full mix-blend-overlay filter blur-[100px] animate-pulse"></div>
-        </div>
+<!-- Overrides removed to use light theme -->
+<style>
+    body { background-color: #F8FAFC; overflow-x: hidden; } /* Light theme base to match brand */
+</style>
 
-        <div class="container mx-auto px-4 lg:px-8 relative z-10 text-center">
-            <h1 class="text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight">
-                <?php
-                if ( is_tax( 'ep_product_cat' ) ) {
-                    single_term_title();
-                } else {
-                    _e( 'Notre Catalogue de Produits', 'effeplast' );
-                }
-                ?>
+<!-- Immersive Light Mode Section -->
+<div class="relative min-h-[90vh] flex flex-col items-center justify-center pt-32 pb-16 overflow-hidden bg-ep-gray-light">
+
+    <!-- Abstract 3D Background Lighting (Light Mode) -->
+    <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-1/4 right-1/4 w-[40rem] h-[40rem] bg-ep-cyan rounded-full mix-blend-multiply filter blur-[150px] opacity-20 animate-blob"></div>
+        <div class="absolute bottom-1/4 left-1/4 w-[40rem] h-[40rem] bg-blue-300 rounded-full mix-blend-multiply filter blur-[150px] opacity-20 animate-blob animation-delay-2000"></div>
+        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+CjxwYXRoIGQ9Ik0wIDBoNDB2NDBIMHoiIGZpbGw9Im5vbmUiLz4KPHBhdGggZD0iTTAgMGw0MCA0ME00MCAwbC00MCA0MCIgc3Ryb2tlPSIjZTllOWU5IiBzdHJva2Utd2lkdGg9IjAuNSIgc3Ryb2tlLW9wYWNpdHk9IjAuNSIvPgo8L3N2Zz4=')] opacity-50"></div>
+
+        <!-- Glowing central stage -->
+        <div class="absolute top-[60%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-7xl h-32 bg-white blur-[100px] rounded-[100%] shadow-[0_0_100px_rgba(0,180,216,0.3)]"></div>
+    </div>
+
+    <!-- Filtering UI Container -->
+    <div class="container mx-auto px-4 lg:px-8 relative z-20 mb-12">
+        <div class="text-center mb-10">
+            <h1 class="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-ep-blue-night to-ep-cyan mb-4 tracking-tight drop-shadow-sm uppercase">
+                <?php _e( 'Notre Catalogue de Produits', 'effeplast' ); ?>
             </h1>
-            <p class="text-blue-100 text-lg max-w-2xl mx-auto font-light leading-relaxed">
-                <?php
-                if ( is_tax( 'ep_product_cat' ) ) {
-                    echo term_description();
-                } else {
-                    _e( 'Découvrez notre large gamme de bidons, bouteilles et bouchons plastiques pour toutes les industries.', 'effeplast' );
-                }
-                ?>
+            <p class="text-gray-600 font-medium text-lg md:text-xl max-w-2xl mx-auto">
+                <?php _e( 'Découvrez notre large gamme de bidons, bouteilles et bouchons plastiques pour toutes les industries.', 'effeplast' ); ?>
             </p>
         </div>
 
-        <!-- Curve divider -->
-        <div class="absolute bottom-0 left-0 w-full overflow-hidden leading-none z-20">
-            <svg class="relative block w-full h-12 text-ep-gray-light" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
-                <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.71,118,130.83,120.7,192.27,110.16,236.4,102.63,279.7,79.5,321.39,56.44Z" fill="currentColor"></path>
-            </svg>
+        <div class="max-w-4xl mx-auto bg-white/80 backdrop-blur-xl border border-gray-100 p-4 md:p-6 rounded-[2rem] shadow-modern flex flex-col md:flex-row gap-4 items-center justify-between">
+
+            <!-- Category Pills -->
+            <div class="flex flex-wrap items-center justify-center gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0" id="ep-slider-categories">
+                <!-- Set "Tous les produits" as active initially using the JS logic data-cat="all" -->
+                <button class="ep-cat-btn px-4 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all border bg-ep-cyan text-white shadow-md shadow-cyan-500/30 border-ep-cyan ep-active-cat" data-cat="all">Tous les produits</button>
+                <?php
+                $categories = get_terms( array(
+                    'taxonomy'   => 'ep_product_cat',
+                    'hide_empty' => true,
+                ) );
+                if ( ! empty( $categories ) && ! is_wp_error( $categories ) ) {
+                    foreach ( $categories as $category ) {
+                        // All others are inactive initially
+                        $is_active = 'bg-gray-50 text-gray-600 border-gray-200 hover:border-ep-cyan hover:text-ep-cyan hover:bg-white';
+
+                        echo '<button class="ep-cat-btn px-4 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all border ' . esc_attr($is_active) . '" data-cat="' . esc_attr($category->slug) . '">' . esc_html($category->name) . '</button>';
+                    }
+                }
+                ?>
+            </div>
+
+            <!-- Sleek Search Bar -->
+            <div class="relative w-full md:w-64 flex-shrink-0 group">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <i class="fas fa-search text-gray-400 group-focus-within:text-ep-cyan transition-colors"></i>
+                </div>
+                <input type="text" id="ep-slider-search" placeholder="Rechercher..." class="w-full pl-11 pr-4 py-3 bg-white border border-gray-200 rounded-full text-gray-800 placeholder-gray-400 font-medium focus:outline-none focus:ring-1 focus:ring-ep-cyan focus:border-ep-cyan transition-all shadow-sm">
+
+                <!-- Loading spinner (hidden by default) -->
+                <div id="ep-slider-loader" class="absolute inset-y-0 right-0 pr-4 flex items-center hidden">
+                    <i class="fas fa-circle-notch fa-spin text-ep-cyan"></i>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Main Content Area -->
-    <div class="container mx-auto px-4 lg:px-8 -mt-8 relative z-30">
-
-        <div class="flex flex-col md:flex-row gap-8">
-
-            <!-- Sidebar: Categories Filter -->
-            <aside class="md:w-1/4">
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sticky top-28">
-                    <h3 class="text-lg font-bold text-ep-blue-night mb-6 uppercase tracking-wider flex items-center gap-2">
-                        <i class="fas fa-layer-group text-ep-cyan"></i> Catégories
-                    </h3>
-                    <ul class="space-y-3">
-                        <?php
-                        $terms = get_terms( array(
-                            'taxonomy'   => 'ep_product_cat',
-                            'hide_empty' => true,
-                        ) );
-
-                        if ( ! empty( $terms ) && ! is_wp_error( $terms ) ) {
-                            foreach ( $terms as $term ) {
-                                $is_active = is_tax( 'ep_product_cat', $term->slug ) ? 'text-ep-cyan font-bold bg-blue-50/50' : 'text-gray-600 hover:text-ep-cyan hover:bg-gray-50';
-                                echo '<li><a href="' . esc_url( get_term_link( $term ) ) . '" class="flex items-center justify-between px-3 py-2 rounded-lg transition-colors ' . esc_attr($is_active) . '">';
-                                echo '<span>' . esc_html( $term->name ) . '</span>';
-                                echo '<span class="text-xs bg-gray-100 text-gray-500 py-1 px-2 rounded-full">' . $term->count . '</span>';
-                                echo '</a></li>';
-                            }
-                        } else {
-                            echo '<li class="text-gray-500 text-sm">Aucune catégorie disponible.</li>';
-                        }
-                        ?>
-                    </ul>
+    <!-- The Swiper Container (Coverflow Effect) -->
+    <div class="w-full relative z-30 pb-16">
+        <div class="swiper ep-product-swiper w-full py-12 px-4 h-[650px] lg:h-[700px]">
+            <div class="swiper-wrapper" id="ep-slider-wrapper">
+                <!-- Slides will be injected here via AJAX. Show some skeleton loaders initially -->
+                <?php for($i=0; $i<5; $i++): ?>
+                <div class="swiper-slide">
+                    <div class="w-full h-full bg-white/5 backdrop-blur rounded-[2rem] border border-white/10 animate-pulse"></div>
                 </div>
-            </aside>
+                <?php endfor; ?>
+            </div>
 
-            <!-- Products Grid -->
-            <main class="md:w-3/4">
-                <?php if ( have_posts() ) : ?>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <?php
-                        while ( have_posts() ) : the_post();
-                            // Retrieve custom meta
-                            $price = get_post_meta( get_the_ID(), '_ep_product_price', true );
-                            ?>
-                            <article id="post-<?php the_ID(); ?>" <?php post_class('relative bg-white rounded-[2rem] overflow-hidden shadow-xl hover:shadow-cyan-500/20 transition-all duration-500 transform hover:-translate-y-2 group border border-gray-100 flex flex-col h-[450px]'); ?>>
+            <!-- Custom Navigation Arrows -->
+            <div class="swiper-button-prev !text-ep-cyan hover:!text-white !w-16 !h-16 !bg-white/90 hover:!bg-ep-cyan backdrop-blur-md !rounded-full border border-ep-cyan/20 hover:border-ep-cyan hover:scale-110 transition-all after:!text-xl shadow-lg shadow-cyan-500/20 left-4 md:left-8"></div>
+            <div class="swiper-button-next !text-ep-cyan hover:!text-white !w-16 !h-16 !bg-white/90 hover:!bg-ep-cyan backdrop-blur-md !rounded-full border border-ep-cyan/20 hover:border-ep-cyan hover:scale-110 transition-all after:!text-xl shadow-lg shadow-cyan-500/20 right-4 md:right-8"></div>
 
-                                <div class="block h-1/2 bg-gray-50 relative p-8 flex flex-col items-center justify-center overflow-hidden">
-                                    <div class="absolute inset-0 bg-gradient-to-t from-ep-blue-night/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                    <?php if ( has_post_thumbnail() ) : ?>
-                                        <?php the_post_thumbnail( 'large', array( 'class' => 'max-h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-700' ) ); ?>
-                                    <?php else : ?>
-                                        <div class="w-full h-full flex items-center justify-center text-gray-300">
-                                            <i class="fas fa-box text-6xl group-hover:text-ep-cyan transition-colors duration-300"></i>
-                                        </div>
-                                    <?php endif; ?>
-
-                                    <!-- Badge for category -->
-                                    <?php
-                                    $product_terms = get_the_terms( get_the_ID(), 'ep_product_cat' );
-                                    if ( $product_terms && ! is_wp_error( $product_terms ) ) :
-                                        $term = array_pop($product_terms);
-                                    ?>
-                                    <div class="absolute top-4 right-4">
-                                        <span class="bg-white/90 backdrop-blur text-xs font-bold text-ep-blue-night px-3 py-1 rounded-full shadow-sm border border-gray-100">
-                                            <?php echo esc_html( $term->name ); ?>
-                                        </span>
-                                    </div>
-                                    <?php endif; ?>
-                                </div>
-
-                                <div class="h-1/2 p-6 flex flex-col justify-between relative z-10 bg-white border-t border-gray-100">
-                                    <div>
-                                        <span class="text-[10px] text-gray-400 font-bold tracking-widest uppercase mb-1 block">Ref: EP-<?php echo get_the_ID(); ?></span>
-                                        <h2 class="text-xl font-black text-ep-blue-night mb-2 line-clamp-2 leading-tight group-hover:text-ep-cyan transition-colors">
-                                            <?php the_title(); ?>
-                                        </h2>
-                                    </div>
-
-                                    <div class="flex items-center justify-between mt-auto pt-2">
-                                        <div>
-                                            <?php if ( $price ) : ?>
-                                                <span class="text-xl font-black text-gray-800 tracking-tight"><?php echo esc_html( $price ); ?> <span class="text-xs text-gray-400 font-medium">MAD</span></span>
-                                            <?php else : ?>
-                                                <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Sur Devis</span>
-                                            <?php endif; ?>
-                                        </div>
-                                        <?php
-                                        $image_src = get_the_post_thumbnail_url(get_the_ID(), 'thumbnail');
-                                        if(!$image_src) $image_src = 'https://via.placeholder.com/600x800?text=EP';
-                                        ?>
-                                        <button class="ep-add-to-quote-btn px-4 py-2 rounded-full bg-ep-blue-night text-white flex items-center justify-center gap-2 hover:bg-ep-cyan hover:scale-105 transition-all duration-300 shadow-md text-[11px] font-bold focus:outline-none flex-shrink-0 whitespace-nowrap"
-                                                data-product-id="<?php the_ID(); ?>"
-                                                data-product-name="<?php echo esc_attr(get_the_title()); ?>"
-                                                data-product-image="<?php echo esc_url($image_src); ?>">
-                                            <i class="fas fa-plus"></i> <span class="btn-text">Au devis</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </article>
-                        <?php endwhile; ?>
-                    </div>
-
-                    <div class="mt-12">
-                        <?php
-                        the_posts_pagination( array(
-                            'mid_size'  => 2,
-                            'prev_text' => __( '<i class="fas fa-chevron-left"></i>', 'effeplast' ),
-                            'next_text' => __( '<i class="fas fa-chevron-right"></i>', 'effeplast' ),
-                            'class'     => 'pagination flex justify-center',
-                        ) );
-                        ?>
-                    </div>
-
-                <?php else : ?>
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
-                        <i class="fas fa-box-open text-6xl text-gray-300 mb-4"></i>
-                        <h2 class="text-2xl font-bold text-ep-blue-night mb-2">Aucun produit trouvé</h2>
-                        <p class="text-gray-500">Nous n'avons pas de produits correspondants dans cette catégorie pour le moment.</p>
-                    </div>
-                <?php endif; ?>
-            </main>
+            <!-- Pagination -->
+            <div class="swiper-pagination !-bottom-6"></div>
         </div>
+
+        <!-- Swipe Indicator -->
+        <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex flex-col items-center text-gray-400 opacity-70 animate-bounce pointer-events-none z-40 hidden md:flex">
+            <i class="fas fa-hand-pointer text-xl mb-1"></i>
+            <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest">
+                <i class="fas fa-chevron-left text-[8px]"></i> Glisser <i class="fas fa-chevron-right text-[8px]"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Background wave for smooth transition to footer if needed -->
+    <div class="absolute bottom-0 left-0 w-full overflow-hidden leading-none z-10 pointer-events-none">
+        <svg class="relative block w-full h-16 text-gray-900" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+            <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.71,118,130.83,120.7,192.27,110.16,236.4,102.63,279.7,79.5,321.39,56.44Z" fill="currentColor"></path>
+        </svg>
     </div>
 </div>
+
+<style>
+/* Swiper Coverflow Specific Overrides */
+.ep-product-swiper .swiper-slide {
+    width: 380px; /* Fixed width for the cards */
+    height: 550px;
+    opacity: 0.4;
+    transition: opacity 0.5s;
+}
+.ep-product-swiper .swiper-slide-active {
+    opacity: 1;
+}
+
+/* Custom Pagination dots */
+.ep-product-swiper .swiper-pagination-bullet {
+    background: rgba(255,255,255,0.3);
+    width: 10px;
+    height: 10px;
+    transition: all 0.3s;
+}
+.ep-product-swiper .swiper-pagination-bullet-active {
+    background: #00B4D8;
+    width: 30px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0,180,216,0.8);
+}
+
+/* Responsive adjust */
+@media (max-width: 640px) {
+    .ep-product-swiper .swiper-slide { width: 300px; height: 500px; }
+}
+</style>
 
 <?php get_footer(); ?>
