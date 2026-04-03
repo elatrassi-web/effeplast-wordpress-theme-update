@@ -521,18 +521,39 @@ function ep_enqueue_swiper_assets() {
         'page-cat-bouchons.php'
     );
 
-    if ( is_page_template( $slider_templates ) || is_tax( 'ep_product_cat' ) || is_post_type_archive( 'ep_produit' ) ) {
+    // Front page uses Swiper too
+    if ( is_front_page() || is_page_template( $slider_templates ) || is_tax( 'ep_product_cat' ) || is_post_type_archive( 'ep_produit' ) ) {
         // Swiper CSS
         wp_enqueue_style( 'swiper-css', 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css', array(), '11.0.5' );
         // Swiper JS
         wp_enqueue_script( 'swiper-js', 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js', array(), '11.0.5', true );
-        // Custom Slider Script
+        // Custom Slider Script for Products
         wp_enqueue_script( 'ep-product-slider', get_template_directory_uri() . '/assets/js/product-slider.js', array('jquery', 'swiper-js'), '1.0.0', true );
 
         // Pass AJAX URL to JS
         wp_localize_script( 'ep-product-slider', 'ep_ajax_obj', array(
             'ajaxurl' => admin_url( 'admin-ajax.php' )
         ) );
+
+        // Inline script specific to the Hero Slider on the Front Page
+        if ( is_front_page() ) {
+            wp_add_inline_script( 'swiper-js', "
+                document.addEventListener('DOMContentLoaded', function() {
+                    if(document.querySelector('.ep-hero-swiper')) {
+                        new Swiper('.ep-hero-swiper', {
+                            speed: 1200,
+                            parallax: true,
+                            effect: 'fade',
+                            fadeEffect: { crossFade: true },
+                            autoplay: { delay: 5000, disableOnInteraction: false },
+                            navigation: { nextEl: '.ep-hero-next', prevEl: '.ep-hero-prev' },
+                            pagination: { el: '.ep-hero-pagination', clickable: true },
+                            loop: true,
+                        });
+                    }
+                });
+            ");
+        }
     }
 }
 add_action( 'wp_enqueue_scripts', 'ep_enqueue_swiper_assets' );
@@ -647,6 +668,139 @@ function ep_fetch_slider_products() {
 }
 add_action( 'wp_ajax_ep_fetch_slider_products', 'ep_fetch_slider_products' );
 add_action( 'wp_ajax_nopriv_ep_fetch_slider_products', 'ep_fetch_slider_products' );
+
+/**
+ * Register Custom Post Type: Slides Accueil
+ */
+function ep_register_slides_accueil_cpt() {
+    $labels = array(
+        'name'                  => _x( 'Slides Accueil', 'Post Type General Name', 'effeplast' ),
+        'singular_name'         => _x( 'Slide', 'Post Type Singular Name', 'effeplast' ),
+        'menu_name'             => __( 'Slides Accueil', 'effeplast' ),
+        'all_items'             => __( 'Toutes les slides', 'effeplast' ),
+        'add_new_item'          => __( 'Ajouter une slide', 'effeplast' ),
+        'add_new'               => __( 'Ajouter', 'effeplast' ),
+        'edit_item'             => __( 'Modifier la slide', 'effeplast' ),
+    );
+    $args = array(
+        'label'                 => __( 'Slide', 'effeplast' ),
+        'labels'                => $labels,
+        'supports'              => array( 'title', 'thumbnail' ), // Title acts as internal reference, Thumbnail is the background
+        'hierarchical'          => false,
+        'public'                => false,
+        'show_ui'               => true,
+        'show_in_menu'          => true,
+        'menu_position'         => 4,
+        'menu_icon'             => 'dashicons-images-alt2',
+        'has_archive'           => false,
+        'exclude_from_search'   => true,
+        'publicly_queryable'    => false,
+        'capability_type'       => 'post',
+    );
+    register_post_type( 'ep_slide_accueil', $args );
+}
+add_action( 'init', 'ep_register_slides_accueil_cpt', 0 );
+
+/**
+ * Register Meta Boxes for Slides Accueil
+ */
+function ep_add_slide_metaboxes() {
+    add_meta_box(
+        'ep_slide_details',
+        __( 'Contenu de la Slide', 'effeplast' ),
+        'ep_slide_details_html',
+        'ep_slide_accueil',
+        'normal',
+        'high'
+    );
+}
+add_action( 'add_meta_boxes', 'ep_add_slide_metaboxes' );
+
+function ep_slide_details_html( $post ) {
+    wp_nonce_field( 'ep_slide_nonce_action', 'ep_slide_nonce' );
+
+    $titre_principal = get_post_meta( $post->ID, '_ep_slide_titre', true );
+    $mot_cle_gradient = get_post_meta( $post->ID, '_ep_slide_mot_cle', true );
+    $description = get_post_meta( $post->ID, '_ep_slide_desc', true );
+    $btn1_text = get_post_meta( $post->ID, '_ep_slide_btn1_text', true );
+    $btn1_url = get_post_meta( $post->ID, '_ep_slide_btn1_url', true );
+    $btn2_text = get_post_meta( $post->ID, '_ep_slide_btn2_text', true );
+    $btn2_url = get_post_meta( $post->ID, '_ep_slide_btn2_url', true );
+    $badge_text = get_post_meta( $post->ID, '_ep_slide_badge', true );
+
+    // Fallbacks for the first time
+    if(empty($titre_principal) && empty($description) && empty($btn1_text)) {
+        $titre_principal = "Parfaits pour vos";
+        $mot_cle_gradient = "Projets Uniques";
+        $description = "Effe Plast, spécialiste de la plasturgie, développe des flacons et des bidons innovants adaptés aux besoins spécifiques de chaque secteur.";
+        $btn1_text = "Demander un Devis";
+        $btn1_url = "/devis";
+        $btn2_text = "Explorer nos Produits";
+        $btn2_url = "/produits";
+        $badge_text = "Depuis 1998 au Maroc";
+    }
+    ?>
+    <style>
+        .ep-slide-field { margin-bottom: 15px; }
+        .ep-slide-field label { display: block; font-weight: bold; margin-bottom: 5px; }
+        .ep-slide-field input[type="text"], .ep-slide-field textarea { width: 100%; max-width: 600px; }
+    </style>
+
+    <div class="ep-slide-field">
+        <label>Petit Badge (au-dessus du titre)</label>
+        <input type="text" name="ep_slide_badge" value="<?php echo esc_attr( $badge_text ); ?>" placeholder="Ex: Depuis 1998 au Maroc">
+    </div>
+
+    <div class="ep-slide-field">
+        <label>Titre principal (Texte normal)</label>
+        <input type="text" name="ep_slide_titre" value="<?php echo esc_attr( $titre_principal ); ?>" placeholder="Ex: Parfaits pour vos">
+    </div>
+
+    <div class="ep-slide-field">
+        <label>Titre principal (Mot en dégradé de couleur)</label>
+        <input type="text" name="ep_slide_mot_cle" value="<?php echo esc_attr( $mot_cle_gradient ); ?>" placeholder="Ex: Projets Uniques">
+        <p class="description">Ce texte s'affichera à la suite du titre principal avec un bel effet dégradé bleu/cyan.</p>
+    </div>
+
+    <div class="ep-slide-field">
+        <label>Description / Sous-titre</label>
+        <textarea name="ep_slide_desc" rows="3"><?php echo esc_textarea( $description ); ?></textarea>
+    </div>
+
+    <hr style="margin: 20px 0;">
+
+    <div class="ep-slide-field">
+        <label>Bouton Principal (Bleu foncé)</label>
+        <input type="text" name="ep_slide_btn1_text" value="<?php echo esc_attr( $btn1_text ); ?>" placeholder="Texte du bouton (Ex: Demander un Devis)" style="margin-bottom: 5px;">
+        <input type="text" name="ep_slide_btn1_url" value="<?php echo esc_attr( $btn1_url ); ?>" placeholder="Lien URL (Ex: /devis)">
+    </div>
+
+    <div class="ep-slide-field">
+        <label>Bouton Secondaire (Blanc / Transparent)</label>
+        <input type="text" name="ep_slide_btn2_text" value="<?php echo esc_attr( $btn2_text ); ?>" placeholder="Texte du bouton (Ex: Nos Produits)" style="margin-bottom: 5px;">
+        <input type="text" name="ep_slide_btn2_url" value="<?php echo esc_attr( $btn2_url ); ?>" placeholder="Lien URL (Ex: /produits)">
+    </div>
+
+    <p class="description" style="color: #d63638; font-weight: bold; margin-top: 20px;">N'oubliez pas d'ajouter une "Image mise en avant" sur le côté droit ! Elle servira d'image principale ou d'arrière-plan pour cette slide.</p>
+    <?php
+}
+
+function ep_save_slide_metaboxes( $post_id ) {
+    if ( ! isset( $_POST['ep_slide_nonce'] ) || ! wp_verify_nonce( $_POST['ep_slide_nonce'], 'ep_slide_nonce_action' ) ) return;
+    if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
+    if ( isset( $_POST['post_type'] ) && 'ep_slide_accueil' === $_POST['post_type'] ) {
+        if ( ! current_user_can( 'edit_post', $post_id ) ) return;
+    }
+
+    $fields = array('_ep_slide_badge', '_ep_slide_titre', '_ep_slide_mot_cle', '_ep_slide_desc', '_ep_slide_btn1_text', '_ep_slide_btn1_url', '_ep_slide_btn2_text', '_ep_slide_btn2_url');
+    foreach($fields as $field) {
+        $key = substr($field, 1); // Removes ONLY the first leading underscore for POST key match
+        if ( isset( $_POST[$key] ) ) {
+            update_post_meta( $post_id, $field, sanitize_text_field( $_POST[$key] ) );
+        }
+    }
+}
+add_action( 'save_post', 'ep_save_slide_metaboxes' );
 
 /**
  * Register Custom Post Type: Commandes Devis (Private for admin only)

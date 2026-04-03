@@ -8,72 +8,114 @@
 get_header();
 ?>
 
-<!-- Hero Section -->
-<section class="relative bg-ep-gray-light overflow-hidden pt-20 pb-32 lg:pt-32 lg:pb-48 flex items-center min-h-[85vh]">
-    <!-- Background Elements -->
-    <div class="absolute inset-0 z-0">
-        <div class="absolute top-0 right-0 w-1/2 h-full bg-ep-blue-night skew-x-12 translate-x-32 hidden lg:block opacity-[0.03]"></div>
-        <div class="absolute -top-40 -left-40 w-96 h-96 bg-ep-cyan rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob"></div>
-        <div class="absolute top-40 right-20 w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-2000"></div>
-    </div>
+<!-- Hero Section (Dynamic Swiper Slider) -->
+<?php
+$slides_query = new WP_Query(array(
+    'post_type'      => 'ep_slide_accueil',
+    'posts_per_page' => -1,
+    'post_status'    => 'publish',
+));
 
-    <div class="container mx-auto px-4 lg:px-8 relative z-10">
-        <div class="grid lg:grid-cols-2 gap-16 lg:gap-8 items-center">
-            <!-- Text Content -->
-            <div class="max-w-2xl">
-                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 text-ep-primary font-semibold text-sm mb-8 border border-blue-100 shadow-sm">
-                    <span class="w-2 h-2 rounded-full bg-ep-cyan animate-pulse"></span>
-                    Depuis 1998 au Maroc
-                </div>
+if ( $slides_query->have_posts() ) :
+?>
+<section class="relative bg-ep-gray-light overflow-hidden flex items-center min-h-[85vh] p-0 m-0 w-full">
 
-                <h1 class="text-5xl lg:text-7xl font-extrabold text-ep-blue-night leading-[1.1] mb-6 tracking-tight">
-                    Parfaits pour vos <br>
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-ep-primary to-ep-cyan">Projets Uniques</span>
-                </h1>
+    <div class="swiper ep-hero-swiper w-full h-full min-h-[85vh] absolute inset-0">
+        <div class="swiper-wrapper">
+            <?php
+            while ( $slides_query->have_posts() ) : $slides_query->the_post();
+                $slide_id = get_the_ID();
+                $titre = get_post_meta( $slide_id, '_ep_slide_titre', true );
+                $mot_cle = get_post_meta( $slide_id, '_ep_slide_mot_cle', true );
+                $desc = get_post_meta( $slide_id, '_ep_slide_desc', true );
+                $btn1_txt = get_post_meta( $slide_id, '_ep_slide_btn1_text', true );
+                $btn1_url = get_post_meta( $slide_id, '_ep_slide_btn1_url', true );
+                $btn2_txt = get_post_meta( $slide_id, '_ep_slide_btn2_text', true );
+                $btn2_url = get_post_meta( $slide_id, '_ep_slide_btn2_url', true );
+                $badge = get_post_meta( $slide_id, '_ep_slide_badge', true );
 
-                <p class="text-lg lg:text-xl text-gray-600 mb-10 leading-relaxed font-light max-w-lg">
-                    Effe Plast, spécialiste de la plasturgie, développe des flacons et des bidons innovants adaptés aux besoins spécifiques de chaque secteur, avec une compétence reconnue.
-                </p>
+                $bg_image_url = get_the_post_thumbnail_url($slide_id, 'full');
+            ?>
+            <div class="swiper-slide relative flex items-center w-full h-full min-h-[85vh] overflow-hidden">
 
-                <div class="flex flex-col sm:flex-row gap-4">
-                    <a href="/devis" class="px-8 py-4 bg-ep-blue-night text-white font-bold rounded-full shadow-lg hover:shadow-cyan-500/30 hover:-translate-y-1 transition-all duration-300 text-center flex items-center justify-center gap-2 group">
-                        <span>Demander un Devis</span>
-                        <i class="fas fa-arrow-right text-sm group-hover:translate-x-1 transition-transform"></i>
-                    </a>
-                    <a href="/produits" class="px-8 py-4 bg-white text-ep-blue-night font-bold rounded-full border border-gray-200 shadow-sm hover:border-ep-cyan hover:text-ep-cyan hover:-translate-y-1 transition-all duration-300 text-center flex items-center justify-center">
-                        Explorer nos Produits
-                    </a>
-                </div>
-            </div>
+                <!-- Slide Background Image with Parallax -->
+                <?php if($bg_image_url): ?>
+                    <div class="absolute inset-0 z-0" data-swiper-parallax="50%">
+                        <img src="<?php echo esc_url($bg_image_url); ?>" alt="" class="w-full h-full object-cover">
+                        <!-- Dark Overlay for text readability -->
+                        <div class="absolute inset-0 bg-gradient-to-r from-ep-blue-night/90 via-ep-blue-night/70 to-transparent"></div>
+                    </div>
+                <?php else: ?>
+                    <!-- Fallback Abstract Background if no image is set -->
+                    <div class="absolute inset-0 z-0" data-swiper-parallax="50%">
+                        <div class="absolute top-0 right-0 w-1/2 h-full bg-ep-blue-night skew-x-12 translate-x-32 hidden lg:block opacity-[0.03]"></div>
+                        <div class="absolute -top-40 -left-40 w-96 h-96 bg-ep-cyan rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob"></div>
+                        <div class="absolute top-40 right-20 w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-2000"></div>
+                    </div>
+                <?php endif; ?>
 
-            <!-- Hero Image / Visual -->
-            <div class="relative hidden lg:block">
-                <div class="absolute inset-0 bg-gradient-to-tr from-ep-blue-night to-ep-cyan rounded-[3rem] rotate-3 opacity-10 scale-105"></div>
-                <div class="relative bg-white p-8 rounded-[3rem] shadow-modern z-10 border border-gray-50 flex justify-center items-center aspect-square overflow-hidden group">
-                    <!-- Temporary placeholder for bidon/bottle image -->
-                    <div class="absolute inset-0 bg-gradient-to-b from-gray-50 to-white"></div>
-                    <div class="relative z-20 flex flex-col items-center justify-center text-center">
-                        <i class="fas fa-prescription-bottle text-8xl text-ep-cyan opacity-80 mb-6 group-hover:scale-110 transition-transform duration-500"></i>
-                        <span class="text-2xl font-bold text-ep-blue-night">Plasturgie d'Excellence</span>
+                <!-- Slide Content -->
+                <div class="container mx-auto px-4 lg:px-8 relative z-10 w-full">
+                    <div class="max-w-3xl" data-swiper-parallax="-300" data-swiper-parallax-opacity="0">
+
+                        <?php if($badge): ?>
+                        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full <?php echo $bg_image_url ? 'bg-white/10 text-white border-white/20 backdrop-blur-md' : 'bg-blue-50 text-ep-primary border-blue-100'; ?> font-semibold text-sm mb-8 shadow-sm">
+                            <span class="w-2 h-2 rounded-full bg-ep-cyan animate-pulse"></span>
+                            <?php echo esc_html($badge); ?>
+                        </div>
+                        <?php endif; ?>
+
+                        <h1 class="text-5xl lg:text-7xl font-extrabold <?php echo $bg_image_url ? 'text-white' : 'text-ep-blue-night'; ?> leading-[1.1] mb-6 tracking-tight drop-shadow-md">
+                            <?php echo esc_html($titre); ?> <br>
+                            <?php if($mot_cle): ?>
+                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-ep-primary to-ep-cyan drop-shadow-none"><?php echo esc_html($mot_cle); ?></span>
+                            <?php endif; ?>
+                        </h1>
+
+                        <?php if($desc): ?>
+                        <p class="text-lg lg:text-xl <?php echo $bg_image_url ? 'text-gray-200' : 'text-gray-600'; ?> mb-10 leading-relaxed font-light max-w-2xl drop-shadow-sm">
+                            <?php echo nl2br(esc_html($desc)); ?>
+                        </p>
+                        <?php endif; ?>
+
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <?php if($btn1_txt && $btn1_url): ?>
+                            <a href="<?php echo esc_url($btn1_url); ?>" class="px-8 py-4 bg-ep-cyan text-white font-bold rounded-full shadow-lg hover:shadow-cyan-500/50 hover:bg-ep-primary hover:-translate-y-1 transition-all duration-300 text-center flex items-center justify-center gap-2 group">
+                                <span><?php echo esc_html($btn1_txt); ?></span>
+                                <i class="fas fa-arrow-right text-sm group-hover:translate-x-1 transition-transform"></i>
+                            </a>
+                            <?php endif; ?>
+
+                            <?php if($btn2_txt && $btn2_url): ?>
+                            <a href="<?php echo esc_url($btn2_url); ?>" class="px-8 py-4 <?php echo $bg_image_url ? 'bg-white/10 text-white border-white/30 backdrop-blur hover:bg-white hover:text-ep-blue-night' : 'bg-white text-ep-blue-night border-gray-200 hover:border-ep-cyan hover:text-ep-cyan'; ?> font-bold rounded-full border shadow-sm hover:-translate-y-1 transition-all duration-300 text-center flex items-center justify-center">
+                                <?php echo esc_html($btn2_txt); ?>
+                            </a>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Floating badges -->
-                <div class="absolute -bottom-8 -left-8 bg-white p-6 rounded-2xl shadow-modern z-20 animate-bounce" style="animation-duration: 3s;">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center text-green-500 text-xl">
-                            <i class="fas fa-leaf"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500 font-medium">Matériaux</p>
-                            <p class="font-bold text-ep-blue-night">100% Recyclables</p>
-                        </div>
-                    </div>
-                </div>
             </div>
+            <?php endwhile; ?>
         </div>
+
+        <!-- Add Pagination -->
+        <div class="swiper-pagination ep-hero-pagination"></div>
+        <!-- Add Navigation -->
+        <div class="swiper-button-prev ep-hero-prev !text-white/70 hover:!text-white after:!text-2xl ml-4 drop-shadow-md"></div>
+        <div class="swiper-button-next ep-hero-next !text-white/70 hover:!text-white after:!text-2xl mr-4 drop-shadow-md"></div>
     </div>
 </section>
+
+<?php else : ?>
+<!-- Fallback Hero Section if no slides are published -->
+<section class="relative bg-ep-gray-light overflow-hidden pt-20 pb-32 lg:pt-32 lg:pb-48 flex items-center min-h-[85vh]">
+    <div class="container mx-auto px-4 lg:px-8 text-center relative z-10">
+        <h1 class="text-4xl font-bold text-gray-400">Aucune slide d'accueil publiée.</h1>
+        <p class="text-gray-500 mt-4">Veuillez ajouter des slides dans l'interface d'administration sous "Slides Accueil".</p>
+    </div>
+</section>
+<?php endif; wp_reset_postdata(); ?>
 
 <!-- About Section -->
 <section class="py-24 bg-white relative">
