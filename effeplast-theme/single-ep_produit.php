@@ -1,202 +1,285 @@
 <?php
 /**
- * The template for displaying all single posts for Custom Post Type "Produits"
+ * The template for displaying all single posts of custom post type 'ep_produit'
  *
  * @package EffePlast
  */
 
 get_header();
+
+// Enqueue Medium Zoom for image click-to-zoom
+wp_enqueue_script('medium-zoom', 'https://cdn.jsdelivr.net/npm/medium-zoom@1.1.0/dist/medium-zoom.min.js', array(), '1.1.0', true);
+
+$post_id = get_the_ID();
+$price = get_post_meta( $post_id, '_ep_product_price', true );
+$colors_meta = get_post_meta( $post_id, '_ep_product_colors', true );
+$secondary_image_id = get_post_meta( $post_id, '_ep_product_secondary_image_id', true );
+
+// Process colors into an array
+$colors = [];
+if(!empty($colors_meta)) {
+    $colors = array_map('trim', explode(',', $colors_meta));
+}
 ?>
 
-<div class="bg-ep-gray-light min-h-screen pb-24">
-    <?php
-    while ( have_posts() ) :
-        the_post();
+<div class="bg-ep-gray-light min-h-screen pt-32 pb-24">
+    <div class="container mx-auto px-4 lg:px-8">
 
-        // Retrieve custom meta fields
-        $price = get_post_meta( get_the_ID(), '_ep_product_price', true );
-        $secondary_image_id = get_post_meta( get_the_ID(), '_ep_product_secondary_image_id', true );
-        $secondary_image_url = $secondary_image_id ? wp_get_attachment_url( $secondary_image_id ) : '';
-
-        // Retrieve terms
-        $terms = get_the_terms( get_the_ID(), 'ep_product_cat' );
-        $category_name = $terms && ! is_wp_error( $terms ) ? $terms[0]->name : __( 'Non catégorisé', 'effeplast' );
-        $category_link = $terms && ! is_wp_error( $terms ) ? get_term_link( $terms[0] ) : '#';
-        ?>
-
-        <!-- Breadcrumbs & Minimal Header -->
-        <div class="bg-ep-blue-night pt-24 pb-32">
-            <div class="container mx-auto px-4 lg:px-8">
-                <nav class="flex items-center text-sm font-medium text-blue-100 mb-8" aria-label="Breadcrumb">
-                    <ol class="inline-flex items-center space-x-1 md:space-x-3">
-                        <li class="inline-flex items-center">
-                            <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="hover:text-ep-cyan transition-colors"><i class="fas fa-home mr-2"></i>Accueil</a>
-                        </li>
-                        <li>
-                            <div class="flex items-center">
-                                <i class="fas fa-chevron-right text-gray-500 mx-2 text-xs"></i>
-                                <a href="<?php echo esc_url( get_post_type_archive_link( 'ep_produit' ) ); ?>" class="hover:text-ep-cyan transition-colors">Produits</a>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="flex items-center">
-                                <i class="fas fa-chevron-right text-gray-500 mx-2 text-xs"></i>
-                                <a href="<?php echo esc_url( $category_link ); ?>" class="hover:text-ep-cyan transition-colors"><?php echo esc_html( $category_name ); ?></a>
-                            </div>
-                        </li>
-                        <li aria-current="page">
-                            <div class="flex items-center">
-                                <i class="fas fa-chevron-right text-gray-500 mx-2 text-xs"></i>
-                                <span class="text-white font-bold opacity-75 truncate max-w-[200px]"><?php the_title(); ?></span>
-                            </div>
-                        </li>
-                    </ol>
-                </nav>
-            </div>
-
-            <div class="absolute bottom-0 left-0 w-full overflow-hidden leading-none">
-                <svg class="relative block w-full h-16 text-ep-gray-light" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
-                    <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".25" fill="currentColor"></path>
-                    <path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" opacity=".5" fill="currentColor"></path>
-                    <path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" fill="currentColor"></path>
-                </svg>
-            </div>
+        <!-- Breadcrumbs -->
+        <div class="mb-8 text-sm font-medium text-gray-500 flex items-center gap-2">
+            <a href="<?php echo esc_url( home_url('/') ); ?>" class="hover:text-ep-cyan transition-colors"><i class="fas fa-home"></i></a>
+            <i class="fas fa-chevron-right text-[10px]"></i>
+            <a href="<?php echo esc_url( get_post_type_archive_link('ep_produit') ); ?>" class="hover:text-ep-cyan transition-colors">Produits</a>
+            <?php
+            $terms = get_the_terms( $post_id, 'ep_product_cat' );
+            if($terms && !is_wp_error($terms)) {
+                $term = $terms[0];
+                echo '<i class="fas fa-chevron-right text-[10px]"></i>';
+                echo '<a href="' . esc_url(get_term_link($term)) . '" class="hover:text-ep-cyan transition-colors">' . esc_html($term->name) . '</a>';
+            }
+            ?>
+            <i class="fas fa-chevron-right text-[10px]"></i>
+            <span class="text-ep-blue-night font-bold truncate max-w-xs"><?php the_title(); ?></span>
         </div>
 
-        <div class="container mx-auto px-4 lg:px-8 -mt-20 relative z-10">
-            <div class="bg-white rounded-3xl shadow-modern p-6 md:p-12">
-                <div class="grid md:grid-cols-2 gap-12 lg:gap-16">
+        <!-- Main Product Card -->
+        <div class="bg-white rounded-[2rem] shadow-modern border border-gray-100 overflow-hidden">
+            <div class="grid lg:grid-cols-2 gap-0">
 
-                    <!-- Product Images -->
-                    <div class="space-y-6" x-data="{ currentImage: 0 }">
-                        <div class="aspect-square bg-gray-50 rounded-2xl border border-gray-100 flex items-center justify-center p-8 relative overflow-hidden group">
-                            <?php if ( has_post_thumbnail() ) : ?>
-                                <?php
-                                $full_img = wp_get_attachment_image_src( get_post_thumbnail_id(), 'full' );
-                                ?>
-                                <img src="<?php echo esc_url($full_img[0]); ?>" alt="<?php the_title_attribute(); ?>" class="max-w-full max-h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-700 ease-in-out" x-show="currentImage === 0" x-transition.opacity>
-                            <?php else : ?>
-                                <i class="fas fa-box text-8xl text-gray-200"></i>
-                            <?php endif; ?>
+                <!-- Left: Images -->
+                <div class="bg-gray-50 p-8 md:p-16 flex flex-col items-center justify-center relative border-r border-gray-100 min-h-[50vh]">
+                    <div class="absolute top-6 left-6 flex flex-col gap-2">
+                        <span class="bg-white text-gray-400 font-bold text-xs uppercase tracking-widest px-3 py-1.5 rounded-md shadow-sm border border-gray-100">Ref: EP-<?php echo $post_id; ?></span>
+                    </div>
 
-                            <?php if ( $secondary_image_url ) : ?>
-                                <img src="<?php echo esc_url($secondary_image_url); ?>" alt="Secondary view" class="max-w-full max-h-full object-contain mix-blend-multiply" x-show="currentImage === 1" x-transition.opacity style="display: none;">
-                            <?php endif; ?>
-
-                            <!-- Badges -->
-                            <div class="absolute top-4 right-4 flex flex-col gap-2">
-                                <span class="w-10 h-10 bg-white/90 backdrop-blur rounded-full shadow-sm flex items-center justify-center text-ep-blue-night font-bold tooltip-trigger" title="Recyclable">
-                                    <i class="fas fa-recycle text-green-500"></i>
-                                </span>
+                    <!-- Main Image with Zoom -->
+                    <div class="w-full max-w-md mx-auto relative group">
+                        <?php
+                        $main_image_url = get_the_post_thumbnail_url($post_id, 'full');
+                        if($main_image_url):
+                        ?>
+                            <img src="<?php echo esc_url($main_image_url); ?>" alt="<?php the_title_attribute(); ?>" class="w-full h-auto object-contain mix-blend-multiply ep-zoom-img cursor-zoom-in transition-transform duration-500 group-hover:scale-105" data-zoom-src="<?php echo esc_url($main_image_url); ?>">
+                            <div class="absolute bottom-0 right-0 bg-white/80 backdrop-blur rounded-full p-3 shadow-md pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
+                                <i class="fas fa-search-plus text-ep-cyan text-xl"></i>
                             </div>
-                        </div>
-
-                        <!-- Thumbnails for gallery (Alpine.js handled) -->
-                        <?php if ( has_post_thumbnail() && $secondary_image_url ) : ?>
-                            <div class="grid grid-cols-4 gap-4">
-                                <button @click="currentImage = 0" :class="{'ring-2 ring-ep-cyan border-transparent': currentImage === 0, 'border-gray-200 hover:border-ep-cyan': currentImage !== 0}" class="aspect-square bg-gray-50 rounded-xl border p-2 transition-all flex items-center justify-center overflow-hidden">
-                                    <img src="<?php echo esc_url($full_img[0]); ?>" class="max-w-full max-h-full object-contain mix-blend-multiply">
-                                </button>
-                                <button @click="currentImage = 1" :class="{'ring-2 ring-ep-cyan border-transparent': currentImage === 1, 'border-gray-200 hover:border-ep-cyan': currentImage !== 1}" class="aspect-square bg-gray-50 rounded-xl border p-2 transition-all flex items-center justify-center overflow-hidden">
-                                    <img src="<?php echo esc_url($secondary_image_url); ?>" class="max-w-full max-h-full object-contain mix-blend-multiply">
-                                </button>
+                        <?php else: ?>
+                            <div class="w-full aspect-square bg-gray-100 rounded-2xl flex items-center justify-center text-gray-300">
+                                <i class="fas fa-box text-6xl"></i>
                             </div>
                         <?php endif; ?>
                     </div>
 
-                    <!-- Product Details -->
-                    <div class="flex flex-col">
-                        <div class="mb-2 inline-flex items-center gap-2">
-                            <span class="text-xs font-bold text-ep-cyan uppercase tracking-widest bg-ep-cyan/10 px-3 py-1 rounded-full"><?php echo esc_html( $category_name ); ?></span>
-                            <span class="text-xs font-bold text-gray-400 bg-gray-100 px-3 py-1 rounded-full"><i class="fas fa-barcode"></i> REF: EP-<?php echo get_the_ID(); ?></span>
-                        </div>
-
-                        <h1 class="text-3xl md:text-5xl font-black text-ep-blue-night leading-tight mb-4"><?php the_title(); ?></h1>
-
-                        <div class="mb-8">
-                            <?php if ( $price ) : ?>
-                                <span class="text-4xl font-extrabold text-ep-blue-night tracking-tight"><?php echo esc_html( $price ); ?> <span class="text-xl text-gray-400 font-medium">MAD</span></span>
-                            <?php else : ?>
-                                <span class="text-xl font-bold text-gray-500 uppercase tracking-widest border-b-2 border-ep-cyan pb-1">Prix sur devis</span>
-                            <?php endif; ?>
-                        </div>
-
-                        <div class="prose prose-lg text-gray-600 font-light leading-relaxed mb-10 max-w-none">
-                            <?php
-                            if(has_excerpt()) {
-                                the_excerpt();
-                            } else {
-                                echo '<p>Découvrez notre ' . strtolower(get_the_title()) . ' conçu pour répondre aux exigences industrielles les plus strictes. Fabriqué avec précision dans nos installations à Kénitra.</p>';
-                            }
-                            ?>
-                        </div>
-
-                        <hr class="border-gray-100 mb-8">
-
-                        <!-- Quantity and Actions -->
-                        <div class="flex flex-col sm:flex-row gap-4 mb-8 product-row">
-                            <div class="flex items-center border-2 border-gray-100 rounded-xl overflow-hidden bg-gray-50 h-14 focus-within:border-ep-cyan focus-within:ring-1 focus-within:ring-ep-cyan transition-all w-32 flex-shrink-0" x-data="{ qty: 1 }">
-                                <button type="button" class="w-10 h-full flex items-center justify-center text-gray-500 hover:text-ep-cyan focus:outline-none" @click="if(qty > 1) qty--"><i class="fas fa-minus text-sm"></i></button>
-                                <input type="number" name="quantity" min="1" x-model="qty" class="ep-qty-input w-full h-full text-center text-ep-blue-night font-bold text-lg bg-transparent border-none focus:ring-0 p-0 appearance-none">
-                                <button type="button" class="w-10 h-full flex items-center justify-center text-gray-500 hover:text-ep-cyan focus:outline-none" @click="qty++"><i class="fas fa-plus text-sm"></i></button>
-                            </div>
-
-                            <?php $image_src = get_the_post_thumbnail_url(get_the_ID(), 'thumbnail'); ?>
-                            <button class="ep-add-to-quote-btn flex-grow flex items-center justify-center gap-3 bg-gradient-to-r from-ep-blue-night to-ep-primary hover:from-ep-cyan hover:to-blue-600 text-white font-bold text-lg h-14 rounded-xl shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 hover:-translate-y-1 transition-all"
-                                    data-product-id="<?php the_ID(); ?>"
-                                    data-product-name="<?php echo esc_attr(get_the_title()); ?>"
-                                    data-product-image="<?php echo esc_url($image_src); ?>">
-                                <i class="fas fa-file-invoice"></i> Ajouter au devis
-                            </button>
-                        </div>
-
-                        <!-- Trust badges -->
-                        <div class="grid grid-cols-2 gap-4 mt-auto">
-                            <div class="flex items-center gap-3 p-3 rounded-lg border border-gray-100 bg-gray-50/50">
-                                <div class="w-10 h-10 rounded-full bg-ep-cyan/10 flex items-center justify-center text-ep-cyan"><i class="fas fa-check-shield"></i></div>
-                                <div class="text-sm font-semibold text-ep-blue-night leading-tight">Qualité<br><span class="text-xs text-gray-500 font-normal">Garantie 100%</span></div>
-                            </div>
-                            <div class="flex items-center gap-3 p-3 rounded-lg border border-gray-100 bg-gray-50/50">
-                                <div class="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500"><i class="fas fa-truck-fast"></i></div>
-                                <div class="text-sm font-semibold text-ep-blue-night leading-tight">Livraison<br><span class="text-xs text-gray-500 font-normal">Rapide au Maroc</span></div>
-                            </div>
-                        </div>
-
+                    <!-- Secondary Image Thumbnails -->
+                    <?php if($secondary_image_id): $sec_image_url = wp_get_attachment_url($secondary_image_id); ?>
+                    <div class="mt-12 flex gap-4 w-full justify-center">
+                        <button class="w-20 h-20 bg-white rounded-xl border-2 border-ep-cyan shadow-md p-2 overflow-hidden hover:border-ep-cyan focus:outline-none ep-img-thumb" data-full="<?php echo esc_url($main_image_url); ?>">
+                            <img src="<?php echo esc_url($main_image_url); ?>" class="w-full h-full object-contain mix-blend-multiply">
+                        </button>
+                        <button class="w-20 h-20 bg-white rounded-xl border-2 border-transparent shadow-sm p-2 overflow-hidden hover:border-gray-300 focus:outline-none ep-img-thumb" data-full="<?php echo esc_url($sec_image_url); ?>">
+                            <img src="<?php echo esc_url($sec_image_url); ?>" class="w-full h-full object-contain mix-blend-multiply">
+                        </button>
                     </div>
+                    <?php endif; ?>
                 </div>
 
-                <!-- Product Full Description Tabs -->
-                <div class="mt-16 pt-16 border-t border-gray-100" x-data="{ tab: 'desc' }">
-                    <div class="flex flex-wrap gap-2 mb-8 border-b border-gray-100 pb-px">
-                        <button @click="tab = 'desc'" :class="{'text-ep-blue-night border-ep-cyan border-b-2 font-bold': tab === 'desc', 'text-gray-500 border-transparent hover:text-ep-cyan font-medium': tab !== 'desc'}" class="px-6 py-3 text-lg transition-all focus:outline-none">Description Complète</button>
-                        <button @click="tab = 'tech'" :class="{'text-ep-blue-night border-ep-cyan border-b-2 font-bold': tab === 'tech', 'text-gray-500 border-transparent hover:text-ep-cyan font-medium': tab !== 'tech'}" class="px-6 py-3 text-lg transition-all focus:outline-none">Spécifications Techniques</button>
+                <!-- Right: Details & Add to Quote -->
+                <div class="p-8 md:p-12 lg:p-16 flex flex-col">
+
+                    <h1 class="text-3xl md:text-5xl font-black text-ep-blue-night mb-4 leading-tight">
+                        <?php the_title(); ?>
+                    </h1>
+
+                    <!-- Price -->
+                    <div class="mb-8">
+                        <?php if ( $price ) : ?>
+                            <span class="text-3xl font-black text-gray-800 tracking-tight"><?php echo esc_html( $price ); ?> <span class="text-lg text-gray-400 font-medium">MAD</span></span>
+                        <?php else : ?>
+                            <span class="inline-block bg-gray-100 text-gray-600 font-bold px-4 py-2 rounded-lg uppercase tracking-wider text-sm">Sur Devis</span>
+                        <?php endif; ?>
                     </div>
 
-                    <div x-show="tab === 'desc'" class="prose prose-lg max-w-none text-gray-600 font-light" x-transition.opacity>
+                    <!-- Content / Description -->
+                    <div class="prose prose-gray max-w-none mb-10 text-gray-600 leading-relaxed font-light">
                         <?php the_content(); ?>
-                        <?php if (empty(get_the_content())) : ?>
-                            <p>Effe Plast s'engage à fournir des produits plastiques de la plus haute qualité. Notre processus de fabrication utilise les dernières technologies de moulage par injection et soufflage, garantissant des parois uniformes et une résistance optimale. Idéal pour les produits chimiques, alimentaires et cosmétiques.</p>
-                        <?php endif; ?>
                     </div>
 
-                    <div x-show="tab === 'tech'" class="bg-gray-50 rounded-2xl p-8 border border-gray-100" x-transition.opacity style="display: none;">
-                        <ul class="grid sm:grid-cols-2 gap-4">
-                            <li class="flex items-center gap-3 bg-white p-4 rounded-xl shadow-sm"><span class="w-8 h-8 rounded-full bg-blue-50 text-ep-cyan flex items-center justify-center"><i class="fas fa-vial"></i></span> <span class="font-semibold text-ep-blue-night w-1/3">Matériau:</span> <span class="text-gray-600">PEHD / PET (Selon demande)</span></li>
-                            <li class="flex items-center gap-3 bg-white p-4 rounded-xl shadow-sm"><span class="w-8 h-8 rounded-full bg-blue-50 text-ep-cyan flex items-center justify-center"><i class="fas fa-palette"></i></span> <span class="font-semibold text-ep-blue-night w-1/3">Couleurs:</span> <span class="text-gray-600">Standard ou Personnalisé</span></li>
-                            <li class="flex items-center gap-3 bg-white p-4 rounded-xl shadow-sm"><span class="w-8 h-8 rounded-full bg-blue-50 text-ep-cyan flex items-center justify-center"><i class="fas fa-shield-halved"></i></span> <span class="font-semibold text-ep-blue-night w-1/3">Étanchéité:</span> <span class="text-gray-600">100% Garantie</span></li>
-                            <li class="flex items-center gap-3 bg-white p-4 rounded-xl shadow-sm"><span class="w-8 h-8 rounded-full bg-blue-50 text-ep-cyan flex items-center justify-center"><i class="fas fa-industry"></i></span> <span class="font-semibold text-ep-blue-night w-1/3">Origine:</span> <span class="text-gray-600">Fabriqué au Maroc</span></li>
-                        </ul>
+                    <div class="mt-auto space-y-8 bg-gray-50/50 p-6 md:p-8 rounded-3xl border border-gray-100">
+
+                        <!-- Colors Selection -->
+                        <?php if(!empty($colors)): ?>
+                        <div class="space-y-3">
+                            <label class="text-xs font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                                <i class="fas fa-palette text-ep-cyan"></i> Couleur
+                            </label>
+                            <div class="flex flex-wrap gap-3" id="ep-color-selector">
+                                <?php foreach($colors as $index => $color): ?>
+                                    <label class="cursor-pointer relative">
+                                        <input type="radio" name="ep_product_color" value="<?php echo esc_attr($color); ?>" class="peer sr-only" <?php echo $index === 0 ? 'checked' : ''; ?>>
+                                        <div class="px-5 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-gray-600 font-bold text-sm transition-all peer-checked:border-ep-cyan peer-checked:text-ep-cyan peer-checked:shadow-md peer-checked:bg-blue-50/30 hover:border-gray-300 flex items-center gap-2">
+                                            <span class="w-3 h-3 rounded-full border border-black/10 inline-block" style="background-color: <?php echo ep_get_hex_for_color_name($color); ?>"></span>
+                                            <?php echo esc_html($color); ?>
+                                        </div>
+                                    </label>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                        <?php endif; ?>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-12 gap-4">
+                            <!-- Quantity -->
+                            <div class="sm:col-span-4 space-y-3">
+                                <label class="text-xs font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                                    <i class="fas fa-sort-numeric-up text-ep-cyan"></i> Quantité
+                                </label>
+                                <div class="flex items-center justify-between border-2 border-gray-200 rounded-xl overflow-hidden bg-white h-[52px]">
+                                    <button type="button" id="ep-single-qty-minus" class="w-12 h-full flex items-center justify-center text-gray-500 hover:text-ep-cyan hover:bg-gray-50 focus:outline-none transition-colors"><i class="fas fa-minus text-sm"></i></button>
+                                    <input type="number" id="ep-single-qty" min="50" value="50" class="w-full h-full text-center text-gray-800 font-bold border-x border-gray-200 focus:outline-none appearance-none m-0 p-0 text-lg">
+                                    <button type="button" id="ep-single-qty-plus" class="w-12 h-full flex items-center justify-center text-gray-500 hover:text-ep-cyan hover:bg-gray-50 focus:outline-none transition-colors"><i class="fas fa-plus text-sm"></i></button>
+                                </div>
+                            </div>
+
+                            <!-- Add to Quote Button -->
+                            <div class="sm:col-span-8 flex items-end">
+                                <button id="ep-single-add-btn" class="ep-add-to-quote-btn w-full h-[52px] bg-ep-blue-night hover:bg-ep-cyan text-white font-bold rounded-xl shadow-lg transition-all duration-300 flex items-center justify-center gap-3 text-lg group"
+                                        data-product-id="<?php echo $post_id; ?>"
+                                        data-product-name="<?php echo esc_attr(get_the_title()); ?>"
+                                        data-product-image="<?php echo esc_url($main_image_url); ?>">
+                                    <i class="fas fa-plus group-hover:rotate-90 transition-transform duration-300"></i>
+                                    <span class="btn-text">Ajouter au devis</span>
+                                </button>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
-
             </div>
         </div>
-
-    <?php endwhile; ?>
+    </div>
 </div>
 
+<?php
+/**
+ * Helper function to map common color names to rough hex values for the visual dot indicator
+ */
+function ep_get_hex_for_color_name($color_name) {
+    $colors = array(
+        'blanc' => '#FFFFFF',
+        'noir' => '#000000',
+        'bleu' => '#2563EB',
+        'rouge' => '#DC2626',
+        'vert' => '#16A34A',
+        'jaune' => '#EAB308',
+        'transparent' => 'rgba(255,255,255,0.5)',
+        'gris' => '#6B7280',
+        'marron' => '#9CA3AF',
+        'rose' => '#EC4899',
+        'violet' => '#8B5CF6',
+        'orange' => '#F97316'
+    );
+    $key = strtolower(trim($color_name));
+    return isset($colors[$key]) ? $colors[$key] : '#E5E7EB'; // default gray
+}
+?>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    // 1. Initialize Image Zoom
+    if(typeof mediumZoom !== 'undefined') {
+        mediumZoom('.ep-zoom-img', {
+            margin: 24,
+            background: 'rgba(255, 255, 255, 0.95)',
+        });
+    }
+
+    // 2. Thumbnail gallery switching
+    const mainImg = document.querySelector('.ep-zoom-img');
+    const thumbs = document.querySelectorAll('.ep-img-thumb');
+
+    if(mainImg && thumbs.length > 0) {
+        thumbs.forEach(thumb => {
+            thumb.addEventListener('click', function() {
+                // Update active state
+                thumbs.forEach(t => {
+                    t.classList.remove('border-ep-cyan');
+                    t.classList.add('border-transparent');
+                });
+                this.classList.remove('border-transparent');
+                this.classList.add('border-ep-cyan');
+
+                // Swap image
+                const newSrc = this.getAttribute('data-full');
+                mainImg.src = newSrc;
+                // Update zoom source if using medium-zoom
+                if(mainImg.dataset.zoomSrc) {
+                    mainImg.dataset.zoomSrc = newSrc;
+                }
+            });
+        });
+    }
+
+    // 3. Quantity Selector Logic
+    const qtyInput = document.getElementById('ep-single-qty');
+    const btnMinus = document.getElementById('ep-single-qty-minus');
+    const btnPlus = document.getElementById('ep-single-qty-plus');
+    const addBtn = document.getElementById('ep-single-add-btn');
+
+    if(qtyInput && btnMinus && btnPlus) {
+        btnMinus.addEventListener('click', () => {
+            let val = parseInt(qtyInput.value);
+            if(val > 50) {
+                qtyInput.value = val - 1;
+                updateButtonData();
+            }
+        });
+
+        btnPlus.addEventListener('click', () => {
+            let val = parseInt(qtyInput.value);
+            qtyInput.value = val + 1;
+            updateButtonData();
+        });
+
+        qtyInput.addEventListener('change', () => {
+            if(parseInt(qtyInput.value) < 50) qtyInput.value = 50;
+            updateButtonData();
+        });
+    }
+
+    // 4. Color Selection Logic
+    const colorInputs = document.querySelectorAll('input[name="ep_product_color"]');
+
+    if(colorInputs.length > 0) {
+        colorInputs.forEach(input => {
+            input.addEventListener('change', updateButtonData);
+        });
+    }
+
+    // Function to dynamically pass color & qty to the JS Quote System
+    function updateButtonData() {
+        if(!addBtn) return;
+
+        // Qty
+        if(qtyInput) {
+            addBtn.setAttribute('data-qty', qtyInput.value);
+        }
+
+        // Color
+        const selectedColor = document.querySelector('input[name="ep_product_color"]:checked');
+        if(selectedColor) {
+            addBtn.setAttribute('data-color', selectedColor.value);
+        } else if (colorInputs.length > 0) {
+            // Fallback if colors exist but none selected (shouldn't happen with default checked)
+            addBtn.removeAttribute('data-color');
+        }
+    }
+
+    // Initial sync
+    updateButtonData();
+});
+</script>
+
 <style>
-/* Remove number input spinners */
+/* Remove arrows from number input */
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {
   -webkit-appearance: none;
@@ -204,6 +287,16 @@ input[type=number]::-webkit-outer-spin-button {
 }
 input[type=number] {
     -moz-appearance: textfield;
+}
+
+/* Medium zoom custom overrides */
+.medium-zoom-overlay {
+    z-index: 100;
+}
+.medium-zoom-image--opened {
+    z-index: 101;
+    border-radius: 1rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 </style>
 

@@ -215,6 +215,7 @@ function ep_product_details_metabox_html( $post ) {
 
     // Retrieve existing values
     $price = get_post_meta( $post->ID, '_ep_product_price', true );
+    $colors = get_post_meta( $post->ID, '_ep_product_colors', true );
     $image_id = get_post_meta( $post->ID, '_ep_product_secondary_image_id', true );
     $image_url = $image_id ? wp_get_attachment_url( $image_id ) : '';
     ?>
@@ -232,6 +233,13 @@ function ep_product_details_metabox_html( $post ) {
             <label for="ep_product_price" class="ep-metabox-label"><?php _e( 'Prix du produit (MAD)', 'effeplast' ); ?></label>
             <input type="number" id="ep_product_price" name="ep_product_price" value="<?php echo esc_attr( $price ); ?>" step="0.01" min="0" style="width: 100%; max-width: 300px;">
             <p class="description"><?php _e( 'Laissez vide si le produit nécessite un devis sans prix fixe.', 'effeplast' ); ?></p>
+        </div>
+
+        <!-- Champ Couleurs -->
+        <div class="ep-metabox-field">
+            <label for="ep_product_colors" class="ep-metabox-label"><?php _e( 'Couleurs disponibles', 'effeplast' ); ?></label>
+            <input type="text" id="ep_product_colors" name="ep_product_colors" value="<?php echo esc_attr( $colors ); ?>" style="width: 100%; max-width: 500px;">
+            <p class="description"><?php _e( 'Séparez les couleurs par des virgules. Exemple: Blanc, Bleu, Noir, Transparent', 'effeplast' ); ?></p>
         </div>
 
         <!-- Champ Image Secondaire (Upload Media) -->
@@ -332,6 +340,12 @@ function effeplast_save_product_metaboxes( $post_id ) {
     if ( isset( $_POST['ep_product_price'] ) ) {
         $price = sanitize_text_field( $_POST['ep_product_price'] );
         update_post_meta( $post_id, '_ep_product_price', $price );
+    }
+
+    // Save Colors
+    if ( isset( $_POST['ep_product_colors'] ) ) {
+        $colors = sanitize_text_field( $_POST['ep_product_colors'] );
+        update_post_meta( $post_id, '_ep_product_colors', $colors );
     }
 
     // Save Secondary Image ID
@@ -567,8 +581,8 @@ function ep_fetch_slider_products() {
             // Output the slide HTML
             ?>
             <div class="swiper-slide group">
-                <div class="relative w-full h-full bg-white rounded-[2rem] overflow-hidden shadow-xl transition-all duration-500 transform group-hover:-translate-y-4 group-hover:shadow-cyan-500/40">
-                    <div class="block h-3/5 bg-gray-50 relative p-8 flex items-center justify-center overflow-hidden">
+                <div class="relative w-full h-full bg-white rounded-[2rem] overflow-hidden shadow-xl transition-all duration-500 transform group-hover:-translate-y-4 group-hover:shadow-cyan-500/40 flex flex-col">
+                    <a href="<?php the_permalink(); ?>" class="block h-3/5 bg-gray-50 relative p-8 flex items-center justify-center overflow-hidden">
                         <div class="absolute inset-0 bg-gradient-to-t from-ep-blue-night/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         <img src="<?php echo esc_url($image_src); ?>" alt="<?php the_title_attribute(); ?>" class="max-h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-700">
                         <?php if($cat_name): ?>
@@ -576,28 +590,38 @@ function ep_fetch_slider_products() {
                                 <?php echo esc_html($cat_name); ?>
                             </span>
                         <?php endif; ?>
-                    </div>
+
+                        <!-- Hover hint -->
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+                            <span class="bg-ep-cyan text-white px-4 py-2 rounded-full font-bold shadow-lg shadow-cyan-500/40 flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+                                <i class="fas fa-eye"></i> Voir détails
+                            </span>
+                        </div>
+                    </a>
 
                     <div class="h-2/5 p-8 flex flex-col justify-between relative z-10 bg-white border-t border-gray-100">
                         <div>
                             <span class="text-xs text-gray-400 font-bold tracking-widest uppercase mb-1 block">Ref: EP-<?php echo get_the_ID(); ?></span>
-                            <h2 class="text-2xl font-black text-ep-blue-night mb-2 line-clamp-2 leading-tight group-hover:text-ep-cyan transition-colors">
-                                <?php the_title(); ?>
-                            </h2>
+                            <a href="<?php the_permalink(); ?>">
+                                <h2 class="text-2xl font-black text-ep-blue-night mb-2 line-clamp-2 leading-tight group-hover:text-ep-cyan transition-colors">
+                                    <?php the_title(); ?>
+                                </h2>
+                            </a>
                         </div>
 
-                        <div class="flex items-center justify-between mt-auto">
+                        <div class="flex items-center justify-between mt-auto gap-4">
                             <?php if ( $price ) : ?>
-                                <span class="text-2xl font-black text-gray-800 tracking-tight"><?php echo esc_html( $price ); ?> <span class="text-sm text-gray-400 font-medium">MAD</span></span>
+                                <span class="text-2xl font-black text-gray-800 tracking-tight whitespace-nowrap"><?php echo esc_html( $price ); ?> <span class="text-sm text-gray-400 font-medium">MAD</span></span>
                             <?php else : ?>
-                                <span class="text-sm font-bold text-gray-500 uppercase tracking-widest">Sur Devis</span>
+                                <span class="text-sm font-bold text-gray-500 uppercase tracking-widest whitespace-nowrap">Sur Devis</span>
                             <?php endif; ?>
 
                             <!-- Integration with quote system JS -->
                             <button class="ep-add-to-quote-btn px-5 py-2.5 rounded-full bg-ep-blue-night text-white flex items-center justify-center gap-2 hover:bg-ep-cyan hover:scale-105 transition-all duration-300 shadow-md text-sm font-bold focus:outline-none flex-shrink-0 whitespace-nowrap"
                                     data-product-id="<?php the_ID(); ?>"
                                     data-product-name="<?php echo esc_attr(get_the_title()); ?>"
-                                    data-product-image="<?php echo esc_url($image_src); ?>">
+                                    data-product-image="<?php echo esc_url($image_src); ?>"
+                                    data-qty="50">
                                 <i class="fas fa-plus"></i> <span class="btn-text">Au devis</span>
                             </button>
                         </div>

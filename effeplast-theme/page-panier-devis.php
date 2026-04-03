@@ -292,9 +292,13 @@ document.addEventListener('DOMContentLoaded', function() {
             let tr = document.createElement('tr');
             tr.className = 'hover:bg-gray-50 transition-colors ep-cart-row';
             tr.setAttribute('data-product-id', item.id);
+            tr.setAttribute('data-unique-id', item.uniqueId || item.id);
 
             // Fallback image
             let imgHtml = item.image ? `<img src="${item.image}" alt="${item.name}" class="w-12 h-12 object-contain mix-blend-multiply">` : `<i class="fas fa-box text-2xl text-gray-300"></i>`;
+
+            // Color badge
+            let colorHtml = item.color ? `<span class="mt-1 text-[10px] sm:text-xs text-gray-600 bg-gray-50 border border-gray-200 px-2 py-0.5 rounded inline-flex items-center gap-1 font-bold ml-1"><i class="fas fa-circle text-[8px] opacity-50"></i> ${item.color}</span>` : '';
 
             tr.innerHTML = `
                 <td class="py-4 px-[0.1rem] sm:px-4">
@@ -305,11 +309,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td class="py-4 px-[0.1rem] sm:px-4">
                     <h4 class="font-bold text-ep-blue-night text-[15px] sm:text-lg leading-tight mb-1 break-words">${item.name}</h4>
                     <span class="text-[10px] sm:text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full inline-block whitespace-nowrap">Ref: EP-${item.id}</span>
+                    ${colorHtml}
                 </td>
                 <td class="py-4 px-[0.1rem] sm:px-4 text-center">
                     <div class="flex items-center justify-center border border-gray-200 rounded-lg overflow-hidden bg-white w-24 sm:w-28 mx-auto">
                         <button type="button" class="ep-qty-minus w-6 sm:w-8 h-8 sm:h-10 flex items-center justify-center text-gray-500 hover:text-ep-cyan focus:outline-none"><i class="fas fa-minus text-[10px] sm:text-xs"></i></button>
-                        <input type="number" min="1" value="${item.quantity}" class="ep-qty-input w-10 sm:w-12 h-8 sm:h-10 text-center text-gray-800 font-bold border-x border-gray-100 focus:outline-none appearance-none m-0 p-0 text-xs sm:text-sm">
+                        <input type="number" min="50" value="${item.quantity}" class="ep-qty-input w-10 sm:w-12 h-8 sm:h-10 text-center text-gray-800 font-bold border-x border-gray-100 focus:outline-none appearance-none m-0 p-0 text-xs sm:text-sm">
                         <button type="button" class="ep-qty-plus w-6 sm:w-8 h-8 sm:h-10 flex items-center justify-center text-gray-500 hover:text-ep-cyan focus:outline-none"><i class="fas fa-plus text-[10px] sm:text-xs"></i></button>
                     </div>
                 </td>
@@ -329,7 +334,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.ep-qty-minus').forEach(btn => {
             btn.addEventListener('click', function() {
                 let input = this.nextElementSibling;
-                if(input.value > 1) {
+                if(input.value > 50) {
                     input.value = parseInt(input.value) - 1;
                     // Trigger change event to update local storage via quote-system.js listener
                     input.dispatchEvent(new Event('change', { bubbles: true }));

@@ -18,18 +18,23 @@ const QuoteSystem = {
     },
 
     // Add item to cart
-    addItem: function(id, name, image, quantity = 1) {
+    addItem: function(id, name, image, quantity = 50, color = '') {
         let cart = this.getCart();
-        let existingItemIndex = cart.findIndex(item => item.id === id);
+        // Use a unique key based on ID + Color so the same product with different colors can be added
+        let uniqueId = color ? `${id}-${color}` : id;
+
+        let existingItemIndex = cart.findIndex(item => (item.uniqueId || item.id) === uniqueId);
 
         if (existingItemIndex > -1) {
             cart[existingItemIndex].quantity += parseInt(quantity, 10);
         } else {
             cart.push({
                 id: id,
+                uniqueId: uniqueId,
                 name: name,
                 image: image,
-                quantity: parseInt(quantity, 10)
+                quantity: parseInt(quantity, 10),
+                color: color
             });
         }
 
@@ -38,22 +43,22 @@ const QuoteSystem = {
     },
 
     // Remove item from cart
-    removeItem: function(id) {
+    removeItem: function(uniqueId) {
         let cart = this.getCart();
-        cart = cart.filter(item => item.id !== id);
+        cart = cart.filter(item => (item.uniqueId || item.id) !== uniqueId);
         this.saveCart(cart);
     },
 
     // Update quantity
-    updateQuantity: function(id, quantity) {
+    updateQuantity: function(uniqueId, quantity) {
         let cart = this.getCart();
-        let existingItemIndex = cart.findIndex(item => item.id === id);
+        let existingItemIndex = cart.findIndex(item => (item.uniqueId || item.id) === uniqueId);
 
         if (existingItemIndex > -1) {
             if (quantity > 0) {
                 cart[existingItemIndex].quantity = parseInt(quantity, 10);
             } else {
-                this.removeItem(id);
+                this.removeItem(uniqueId);
                 return;
             }
         }
@@ -67,9 +72,10 @@ const QuoteSystem = {
     },
 
     // Check if item is in cart
-    isInCart: function(id) {
+    isInCart: function(id, color = '') {
         let cart = this.getCart();
-        return cart.some(item => item.id === id);
+        let uniqueId = color ? `${id}-${color}` : id;
+        return cart.some(item => (item.uniqueId || item.id) === uniqueId);
     },
 
     // Update UI elements (buttons, counters) based on cart state
@@ -92,13 +98,14 @@ const QuoteSystem = {
         let addButtons = document.querySelectorAll('.ep-add-to-quote-btn');
         addButtons.forEach(btn => {
             let productId = btn.getAttribute('data-product-id');
+            let color = btn.getAttribute('data-color') || '';
 
             // Check if it's a slider button (which has a slightly different layout, rounded pills)
             let isSliderBtn = btn.classList.contains('whitespace-nowrap');
             // Check if it's in the devis table (allows removal)
             let isTableBtn = btn.closest('tr') && !isSliderBtn;
 
-            if (this.isInCart(productId)) {
+            if (this.isInCart(productId, color)) {
                 btn.classList.add('bg-red-600', 'hover:bg-red-500'); // Changed from disabled gray to active red for removal
                 btn.classList.remove('bg-[#1762A4]', 'hover:bg-ep-cyan', 'bg-ep-blue-night');
 
@@ -139,11 +146,12 @@ const QuoteSystem = {
             }
 
             // Sync quantity input on Devis page if item is in cart
-            if (isTableBtn && this.isInCart(productId)) {
+            if (isTableBtn && this.isInCart(productId, color)) {
                 let row = btn.closest('tr');
                 let qtyInput = row.querySelector('.ep-qty-input');
                 if (qtyInput) {
-                    let cartItem = this.getCart().find(item => item.id === productId);
+                    let uniqueId = color ? `${productId}-${color}` : productId;
+                    let cartItem = this.getCart().find(item => (item.uniqueId || item.id) === uniqueId);
                     if (cartItem && qtyInput.value !== cartItem.quantity.toString()) {
                         qtyInput.value = cartItem.quantity;
                     }
@@ -187,10 +195,12 @@ const QuoteSystem = {
             if (btn && !btn.hasAttribute('disabled')) {
                 e.preventDefault();
                 let productId = btn.getAttribute('data-product-id');
+                let color = btn.getAttribute('data-color') || '';
+                let uniqueId = color ? `${productId}-${color}` : productId;
 
                 // If it's a remove action (from table)
                 if (btn.getAttribute('data-action') === 'remove') {
-                    self.removeItem(productId);
+                    self.removeItem(uniqueId);
                     self.showNotification('Produit retiré du devis.', 'bg-red-500');
                     return;
                 }
@@ -199,12 +209,15 @@ const QuoteSystem = {
                 let productName = btn.getAttribute('data-product-name');
                 let productImage = btn.getAttribute('data-product-image');
 
-                // Find quantity input
-                let row = btn.closest('tr') || btn.closest('.product-card');
-                let qtyInput = row ? row.querySelector('.ep-qty-input') : null;
-                let quantity = qtyInput ? qtyInput.value : 1;
+                // Find quantity input (use data-qty attribute if present, otherwise look for input, fallback to 50)
+                let quantity = btn.getAttribute('data-qty');
+                if(!quantity) {
+                    let row = btn.closest('tr') || btn.closest('.product-card') || btn.closest('.swiper-slide');
+                    let qtyInput = row ? row.querySelector('.ep-qty-input') : null;
+                    quantity = qtyInput ? qtyInput.value : 50;
+                }
 
-                self.addItem(productId, productName, productImage, quantity);
+                self.addItem(productId, productName, productImage, quantity, color);
                 self.showNotification('Produit ajouté au devis !', 'bg-ep-cyan');
             }
         });
@@ -214,9 +227,21 @@ const QuoteSystem = {
             if(e.target.classList.contains('ep-qty-input')) {
                 let row = e.target.closest('.ep-cart-row') || e.target.closest('tr');
                 if(row) {
-                    let productId = row.getAttribute('data-product-id') || row.querySelector('.ep-add-to-quote-btn')?.getAttribute('data-product-id');
-                    if (productId && self.isInCart(productId)) {
-                        self.updateQuantity(productId, e.target.value);
+                    let btn = row.querySelector('.ep-add-to-quote-btn');
+                    let uniqueId;
+                    if(row.classList.contains('ep-cart-row')){
+                         // cart page uses data-unique-id or data-product-id
+                         uniqueId = row.getAttribute('data-unique-id') || row.getAttribute('data-product-id');
+                    } else if(btn) {
+                        let productId = btn.getAttribute('data-product-id');
+                        let color = btn.getAttribute('data-color') || '';
+                        uniqueId = color ? `${productId}-${color}` : productId;
+                    }
+
+                    if (uniqueId) {
+                        // We do not check isInCart here because the updateQuantity checks it,
+                        // and we need to allow updates for items currently in cart.
+                        self.updateQuantity(uniqueId, e.target.value);
                         // show subtle notification
                         self.showNotification('Quantité mise à jour', 'bg-gray-800');
                     }

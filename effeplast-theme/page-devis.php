@@ -193,7 +193,7 @@ get_header();
                                         </td>
                                         <td class="py-4 px-6">
                                             <div class="flex justify-center">
-                                                <input type="number" value="1" min="1" class="ep-qty-input w-16 h-10 bg-black/40 text-white text-center font-bold border border-white/10 rounded focus:outline-none focus:border-ep-cyan appearance-none shadow-inner">
+                                                <input type="number" value="50" min="50" class="ep-qty-input w-16 h-10 bg-black/40 text-white text-center font-bold border border-white/10 rounded focus:outline-none focus:border-ep-cyan appearance-none shadow-inner">
                                             </div>
                                         </td>
                                         <td class="py-4 px-6 text-center">
