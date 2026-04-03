@@ -261,21 +261,76 @@ if ( $slides_query->have_posts() ) :
 </section>
 
 <!-- Partners Section -->
-<section class="py-16 bg-white border-t border-gray-100">
+<section class="py-16 bg-white border-t border-gray-100 overflow-hidden">
     <div class="container mx-auto px-4 lg:px-8">
-        <div class="flex flex-col md:flex-row items-center gap-12 lg:gap-24">
-            <div class="md:w-1/3 text-center md:text-left">
+        <div class="flex flex-col md:flex-row items-center gap-12 lg:gap-16">
+
+            <div class="md:w-1/3 text-center md:text-left shrink-0 relative z-10 bg-white md:pr-8">
                 <h3 class="text-2xl font-bold text-ep-blue-night mb-2">Partenaires de notre succès</h3>
                 <p class="text-gray-500 font-medium">Ensemble, créons l'excellence</p>
             </div>
-            <div class="md:w-2/3 grid grid-cols-2 md:grid-cols-3 gap-8 items-center justify-items-center opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
-                <!-- Logos textuels (placeholder pour les vrais logos) -->
-                <div class="text-2xl font-black text-gray-400 hover:text-gray-800 transition-colors">MERCURE</div>
-                <div class="text-2xl font-black text-gray-400 hover:text-gray-800 transition-colors">SARAPROC</div>
-                <div class="text-2xl font-black text-gray-400 hover:text-gray-800 transition-colors col-span-2 md:col-span-1">TOP-CHEF</div>
+
+            <!-- Infinite Scrolling Logos -->
+            <div class="md:w-2/3 w-full relative">
+                <!-- Gradient Masks for smooth scroll fading -->
+                <div class="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none hidden md:block"></div>
+                <div class="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none hidden md:block"></div>
+
+                <div class="ep-logo-slider">
+                    <div class="ep-logo-track flex items-center gap-12 md:gap-20 w-max">
+
+                        <?php
+                        // Array of partner logos
+                        $partner_logos = array(
+                            home_url('/wp-content/uploads/2026/04/LOGO-SARAPROC.jpg'),
+                            home_url('/wp-content/uploads/2026/04/LOGO-TOP-CHEF-remove.jpg'),
+                            'https://www.effeplast.upkeep.ma/wp-content/uploads/2026/04/mercure.jpg',
+                            'https://www.effeplast.upkeep.ma/wp-content/uploads/2026/04/OUSSOUD-AL-MAGHRIB.png'
+                        );
+
+                        // Output the logos twice (or more) to create a seamless infinite scroll loop
+                        for($i=0; $i<3; $i++) {
+                            foreach($partner_logos as $logo_url) {
+                                ?>
+                                <div class="w-32 md:w-40 shrink-0 group flex items-center justify-center h-24">
+                                    <img src="<?php echo esc_url($logo_url); ?>" alt="Partenaire Effe Plast" class="max-w-full max-h-full object-contain opacity-60 grayscale group-hover:opacity-100 group-hover:grayscale-0 transition-all duration-300 group-hover:scale-110 cursor-pointer mix-blend-multiply">
+                                </div>
+                                <?php
+                            }
+                        }
+                        ?>
+
+                    </div>
+                </div>
             </div>
+
         </div>
     </div>
 </section>
+
+<style>
+.ep-logo-slider {
+    width: 100%;
+    overflow: hidden;
+}
+.ep-logo-track {
+    animation: epScrollLogos 25s linear infinite;
+}
+.ep-logo-track:hover {
+    animation-play-state: paused;
+}
+
+@keyframes epScrollLogos {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(calc(-33.33% - 4rem)); /* Translates exactly one full set of logos (1/3 of the track) */ }
+}
+
+@media (min-width: 768px) {
+    @keyframes epScrollLogos {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(calc(-33.33% - 5rem)); /* Adjust for md:gap-20 */ }
+    }
+}
+</style>
 
 <?php get_footer(); ?>
