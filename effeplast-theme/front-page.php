@@ -212,7 +212,7 @@ if ( $slides_query->have_posts() ) :
                 </div>
                 <div class="p-8 text-center relative z-20 bg-white">
                     <h3 class="text-2xl font-bold text-ep-blue-night mb-2">Bidons</h3>
-                    <p class="text-gray-500 mb-6 font-medium">Capacités de 1L à 20L</p>
+                    <p class="text-gray-500 mb-6 font-medium">Capacités de 1L à 5L</p>
                     <span class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-50 text-ep-blue-night group-hover:bg-ep-cyan group-hover:text-white transition-all duration-300">
                         <i class="fas fa-arrow-right"></i>
                     </span>
