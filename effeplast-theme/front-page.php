@@ -263,21 +263,21 @@ if ( $slides_query->have_posts() ) :
 <!-- Partners Section -->
 <section class="py-16 bg-white border-t border-gray-100 overflow-hidden">
     <div class="container mx-auto px-4 lg:px-8">
-        <div class="flex flex-col md:flex-row items-center gap-12 lg:gap-16">
+        <div class="flex flex-col md:flex-row items-center justify-between">
 
-            <div class="md:w-1/3 text-center md:text-left shrink-0 relative z-10 bg-white md:pr-8">
+            <div class="w-full md:w-[30%] text-center md:text-left shrink-0 relative z-10 bg-white mb-8 md:mb-0 md:pr-12">
                 <h3 class="text-2xl font-bold text-ep-blue-night mb-2">Partenaires de notre succès</h3>
                 <p class="text-gray-500 font-medium">Ensemble, créons l'excellence</p>
             </div>
 
             <!-- Infinite Scrolling Logos -->
-            <div class="md:w-2/3 w-full relative">
+            <div class="w-full md:w-[70%] relative overflow-hidden" style="min-width: 0;">
                 <!-- Gradient Masks for smooth scroll fading -->
                 <div class="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none hidden md:block"></div>
                 <div class="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none hidden md:block"></div>
 
                 <div class="ep-logo-slider">
-                    <div class="ep-logo-track flex items-center gap-16 md:gap-24 w-max">
+                    <div class="ep-logo-track flex items-center w-max" style="gap: 4rem;">
 
                         <?php
                         // Array of partner logos
@@ -292,8 +292,8 @@ if ( $slides_query->have_posts() ) :
                         for($i=0; $i<3; $i++) {
                             foreach($partner_logos as $logo_url) {
                                 ?>
-                                <div class="shrink-0 group flex items-center justify-center" style="width: 150px; height: 100px;">
-                                    <img src="<?php echo esc_url($logo_url); ?>" alt="Partenaire Effe Plast" class="w-full h-full object-contain transition-transform duration-300 hover:scale-110 cursor-pointer">
+                                <div class="group flex items-center justify-center" style="flex: 0 0 100px; width: 100px; height: 80px;">
+                                    <img src="<?php echo esc_url($logo_url); ?>" alt="Partenaire Effe Plast" class="max-w-[100px] max-h-[80px] object-contain transition-transform duration-300 hover:scale-110 cursor-pointer">
                                 </div>
                                 <?php
                             }
