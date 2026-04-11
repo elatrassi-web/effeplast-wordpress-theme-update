@@ -85,7 +85,7 @@ get_header();
                                 } else {
                                     ?>
                                     <p class="mb-6 font-medium text-gray-800 text-xl border-l-4 border-ep-cyan pl-6">
-                                        Basée à Kénitra, Effe Plast se distingue par son savoir-faire unique dans la conception de flacons et bidons plastiques.
+                                        Basée à Av. Bahnini - Res .Taissir -A2-4-6 USINE : Lot. N 7 -Q.I . BirRami KENITRA, Effe Plast se distingue par son savoir-faire unique dans la conception de flacons et bidons plastiques.
                                     </p>
                                     <p class="mb-6">
                                         Depuis notre création en 1998, nous accompagnons les industries cosmétiques, pharmaceutiques, chimiques et agroalimentaires dans le développement de solutions d'emballage performantes.
@@ -113,7 +113,7 @@ get_header();
                                 <div class="w-12 h-12 bg-ep-cyan rounded-full flex items-center justify-center text-white font-bold text-xl"><i class="fas fa-map-marker-alt"></i></div>
                                 <div>
                                     <h4 class="font-bold text-ep-blue-night text-lg">Usine Kénitra</h4>
-                                    <p class="text-sm text-gray-500 font-medium">Production 24/7</p>
+                                    <p class="text-[10px] text-gray-500 font-medium leading-tight">Lot. N 7 -Q.I . BirRami KENITRA</p>
                                 </div>
                             </div>
                         </div>

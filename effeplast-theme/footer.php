@@ -91,7 +91,7 @@
                             <span class="w-8 h-8 rounded-lg bg-gray-800 flex-shrink-0 flex items-center justify-center text-ep-cyan group-hover:bg-ep-cyan group-hover:text-white transition-all duration-300">
                                 <i class="fas fa-map-marker-alt"></i>
                             </span>
-                            <span class="mt-1 leading-relaxed">Kénitra, Maroc</span>
+                            <span class="mt-1 leading-relaxed">Av. Bahnini - Res .Taissir -A2-4-6<br>USINE : Lot. N 7 -Q.I . BirRami KENITRA</span>
                         </li>
                         <li class="flex items-center gap-3 group">
                             <span class="w-8 h-8 rounded-lg bg-gray-800 flex-shrink-0 flex items-center justify-center text-ep-cyan group-hover:bg-ep-cyan group-hover:text-white transition-all duration-300">
@@ -123,6 +123,16 @@
     </footer><!-- #colophon -->
 
 </div><!-- #page -->
+
+<!-- WhatsApp Floating Button -->
+<a href="https://wa.me/212537360820" target="_blank" rel="noopener noreferrer" class="fixed bottom-6 left-6 z-[60] w-14 h-14 bg-[#25D366] text-white rounded-full flex items-center justify-center text-3xl shadow-lg shadow-green-500/30 hover:scale-110 hover:-translate-y-1 transition-all duration-300 group ep-hide-print animate-bounce" style="animation-duration: 3s;">
+    <i class="fab fa-whatsapp"></i>
+    <!-- Tooltip -->
+    <span class="absolute left-full ml-4 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-gray-900 text-white text-xs font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-md">
+        Contactez-nous !
+        <span class="absolute top-1/2 -left-1 -translate-y-1/2 w-2 h-2 bg-gray-900 rotate-45"></span>
+    </span>
+</a>
 
 <?php wp_footer(); ?>
 </body>

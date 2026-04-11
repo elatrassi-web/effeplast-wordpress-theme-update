@@ -1074,7 +1074,7 @@ function ep_render_single_devis_view($post_id) {
             </div>
             <div style="text-align: right;">
                 <strong style="font-size: 18px;">Effe Plast</strong><br>
-                <span style="color: #646970;">Kénitra, Maroc</span>
+                <span style="color: #646970; font-size: 12px;">Av. Bahnini - Res .Taissir -A2-4-6<br>USINE : Lot. N 7 -Q.I . BirRami KENITRA</span>
             </div>
         </div>
     </div>

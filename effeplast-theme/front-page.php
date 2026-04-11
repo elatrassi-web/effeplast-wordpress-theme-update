@@ -124,9 +124,9 @@ if ( $slides_query->have_posts() ) :
             <div class="order-2 lg:order-1 relative">
                 <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-4">
-                        <div class="bg-gray-50 aspect-[4/5] rounded-3xl overflow-hidden shadow-sm hover:shadow-modern transition-all duration-500 group flex items-center justify-center relative">
+                        <div class="bg-gray-50 aspect-[4/5] rounded-3xl overflow-hidden shadow-sm hover:shadow-modern transition-all duration-500 group flex items-center justify-center relative p-8">
                             <div class="absolute inset-0 bg-gradient-to-t from-ep-blue-night/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
-                            <i class="fas fa-industry text-6xl text-gray-300 group-hover:text-white group-hover:-translate-y-4 transition-all duration-500 relative z-20"></i>
+                            <img src="<?php echo esc_url(home_url('/wp-content/uploads/2026/04/creativity-1.png')); ?>" alt="Créativité Effe Plast" class="w-full h-full object-contain filter group-hover:brightness-0 group-hover:invert group-hover:-translate-y-2 transition-all duration-500 relative z-20">
                         </div>
                         <div class="bg-ep-cyan aspect-square rounded-3xl p-8 text-white flex flex-col justify-end hover:shadow-modern-hover transition-all duration-300 hover:-translate-y-2">
                             <span class="text-4xl font-black mb-2">+25</span>
@@ -138,9 +138,9 @@ if ( $slides_query->have_posts() ) :
                             <i class="fas fa-medal text-4xl text-ep-cyan mb-4"></i>
                             <span class="font-bold text-xl">Qualité Certifiée</span>
                         </div>
-                        <div class="bg-gray-50 aspect-[4/5] rounded-3xl overflow-hidden shadow-sm hover:shadow-modern transition-all duration-500 group flex items-center justify-center relative">
+                        <div class="bg-gray-50 aspect-[4/5] rounded-3xl overflow-hidden shadow-sm hover:shadow-modern transition-all duration-500 group flex items-center justify-center relative p-8">
                             <div class="absolute inset-0 bg-gradient-to-t from-ep-cyan/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
-                            <i class="fas fa-vial text-6xl text-gray-300 group-hover:text-white group-hover:-translate-y-4 transition-all duration-500 relative z-20"></i>
+                            <img src="<?php echo esc_url(home_url('/wp-content/uploads/2026/04/quality.png')); ?>" alt="Qualité Effe Plast" class="w-full h-full object-contain filter group-hover:brightness-0 group-hover:invert group-hover:-translate-y-2 transition-all duration-500 relative z-20">
                         </div>
                     </div>
                 </div>
@@ -156,7 +156,7 @@ if ( $slides_query->have_posts() ) :
                 </h2>
 
                 <p class="text-gray-600 mb-6 text-lg leading-relaxed font-light">
-                    Basée à Kénitra, Effe Plast se distingue par son savoir-faire unique dans la conception de flacons et bidons plastiques.
+                    Basée à Av. Bahnini - Res .Taissir -A2-4-6 USINE : Lot. N 7 -Q.I . BirRami KENITRA, Effe Plast se distingue par son savoir-faire unique dans la conception de flacons et bidons plastiques.
                 </p>
                 <p class="text-gray-600 mb-10 leading-relaxed">
                     Grâce à l'innovation, à des équipements de pointe et à une approche sur mesure, nous accompagnons les industries dans le développement de solutions d'emballage qui allient performance, durabilité et design.
@@ -277,7 +277,7 @@ if ( $slides_query->have_posts() ) :
                 <div class="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none hidden md:block"></div>
 
                 <div class="ep-logo-slider">
-                    <div class="ep-logo-track flex items-center gap-12 md:gap-20 w-max">
+                    <div class="ep-logo-track flex items-center gap-16 md:gap-24 w-max">
 
                         <?php
                         // Array of partner logos
@@ -292,8 +292,8 @@ if ( $slides_query->have_posts() ) :
                         for($i=0; $i<3; $i++) {
                             foreach($partner_logos as $logo_url) {
                                 ?>
-                                <div class="w-32 md:w-40 shrink-0 group flex items-center justify-center h-24">
-                                    <img src="<?php echo esc_url($logo_url); ?>" alt="Partenaire Effe Plast" class="max-w-full max-h-full object-contain opacity-60 grayscale group-hover:opacity-100 group-hover:grayscale-0 transition-all duration-300 group-hover:scale-110 cursor-pointer mix-blend-multiply">
+                                <div class="w-48 md:w-56 lg:w-64 shrink-0 group flex items-center justify-center h-32 md:h-40">
+                                    <img src="<?php echo esc_url($logo_url); ?>" alt="Partenaire Effe Plast" class="w-full h-full object-contain opacity-80 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-300 hover:scale-110 cursor-pointer mix-blend-multiply">
                                 </div>
                                 <?php
                             }

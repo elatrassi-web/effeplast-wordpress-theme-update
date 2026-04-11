@@ -63,7 +63,7 @@ get_header();
                             </div>
                             <div class="text-right">
                                 <h3 class="font-bold text-xl">Effe Plast</h3>
-                                <p class="text-xs text-blue-200">Kénitra, Maroc<br>05 37 36 08 20</p>
+                                <p class="text-xs text-blue-200">Av. Bahnini - Res .Taissir -A2-4-6<br>USINE : Lot. N 7 -Q.I . BirRami KENITRA<br>05 37 36 08 20</p>
                             </div>
                         </div>
 

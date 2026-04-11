@@ -46,7 +46,7 @@ get_header();
                     <i class="fas fa-map-marker-alt text-4xl"></i>
                 </div>
                 <h3 class="text-xl font-bold text-ep-blue-night mb-2">Notre Usine</h3>
-                <p class="text-gray-500 font-medium mb-4">Kénitra, Maroc</p>
+                <p class="text-[12px] text-gray-500 font-medium mb-4 leading-relaxed">Av. Bahnini - Res .Taissir -A2-4-6<br>USINE : Lot. N 7 -Q.I . BirRami KENITRA</p>
                 <a href="#map" class="text-ep-cyan font-semibold hover:text-ep-primary transition-colors text-sm uppercase tracking-widest mt-auto">Voir sur la carte <i class="fas fa-arrow-down ml-1"></i></a>
             </div>
 
@@ -145,7 +145,7 @@ get_header();
                             <div class="w-10 h-10 bg-ep-cyan rounded-full flex items-center justify-center text-white flex-shrink-0 mt-1 shadow-sm"><i class="fas fa-building"></i></div>
                             <div>
                                 <h4 class="font-bold text-ep-blue-night text-lg mb-1">Effe Plast S.A.R.L</h4>
-                                <p class="text-sm text-gray-500 leading-relaxed font-medium">Zone Industrielle,<br>Kénitra, Maroc</p>
+                                <p class="text-[11px] text-gray-500 leading-relaxed font-medium">Av. Bahnini - Res .Taissir -A2-4-6<br>USINE : Lot. N 7 -Q.I . BirRami KENITRA</p>
                             </div>
                         </div>
                     </div>
