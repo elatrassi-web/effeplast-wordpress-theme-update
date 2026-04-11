@@ -104,9 +104,9 @@ get_header();
                 <div class="relative">
                     <div class="absolute inset-0 bg-gradient-to-tr from-ep-blue-night to-ep-cyan rounded-[2rem] rotate-3 opacity-10 scale-105"></div>
                     <div class="relative bg-gray-50 rounded-[2rem] aspect-[4/3] flex items-center justify-center border border-gray-200 shadow-inner overflow-hidden group">
-                        <!-- Placeholder for factory/company image -->
-                        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+CjxwYXRoIGQ9Ik0wIDBoNDB2NDBIMHoiIGZpbGw9Im5vbmUiLz4KPHBhdGggZD0iTTAgMGw0MCA0ME00MCAwbC00MCA0MCIgc3Ryb2tlPSIjZTllOWU5IiBzdHJva2Utd2lkdGg9IjAuNSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIvPgo8L3N2Zz4=')] opacity-50 mix-blend-multiply"></div>
-                        <i class="fas fa-industry text-9xl text-gray-300 group-hover:text-ep-cyan transition-colors duration-700 group-hover:scale-110"></i>
+                        <!-- Factory/company image -->
+                        <img src="<?php echo esc_url(home_url('/wp-content/uploads/2026/04/IMG_7116.JPG.jpeg')); ?>" alt="Usine Effe Plast Kénitra" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                        <div class="absolute inset-0 bg-ep-blue-night/10 group-hover:bg-ep-blue-night/0 transition-colors duration-500"></div>
 
                         <div class="absolute bottom-6 left-6 right-6 bg-white/90 backdrop-blur rounded-2xl p-6 shadow-lg border border-white/20 transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
                             <div class="flex items-center gap-4">
