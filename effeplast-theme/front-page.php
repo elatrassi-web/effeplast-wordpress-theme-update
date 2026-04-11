@@ -208,7 +208,7 @@ if ( $slides_query->have_posts() ) :
                 <div class="aspect-[4/3] bg-gray-50 flex items-center justify-center p-12 relative overflow-hidden">
                     <div class="absolute w-64 h-64 bg-ep-cyan rounded-full filter blur-3xl opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
                     <!-- Bidons Image -->
-                    <img src="<?php echo esc_url('https://www.effeplast.upkeep.ma/wp-content/uploads/2026/04/bidons-1.png'); ?>" alt="Catégorie Bidons" class="w-32 h-32 object-contain group-hover:scale-110 transition-transform duration-500 relative z-10">
+                    <img src="https://www.effeplast.upkeep.ma/wp-content/uploads/2026/04/bidons-1.png" alt="Catégorie Bidons" class="group-hover:scale-110 transition-transform duration-500 relative z-10 w-32 h-32 object-contain">
                 </div>
                 <div class="p-8 text-center relative z-20 bg-white">
                     <h3 class="text-2xl font-bold text-ep-blue-night mb-2">Bidons</h3>
@@ -224,7 +224,7 @@ if ( $slides_query->have_posts() ) :
                 <div class="aspect-[4/3] bg-gray-50 flex items-center justify-center p-12 relative overflow-hidden">
                     <div class="absolute w-64 h-64 bg-ep-primary rounded-full filter blur-3xl opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
                     <!-- Bouteilles Image -->
-                    <img src="<?php echo esc_url(home_url('/wp-content/uploads/2026/04/bout.png')); ?>" alt="Catégorie Bouteilles" class="w-32 h-32 object-contain group-hover:scale-110 transition-transform duration-500 relative z-10">
+                    <img src="<?php echo esc_url(home_url('/wp-content/uploads/2026/04/bout.png')); ?>" alt="Catégorie Bouteilles" class="group-hover:scale-110 transition-transform duration-500 relative z-10 w-32 h-32 object-contain">
                 </div>
                 <div class="p-8 text-center relative z-20 bg-white">
                     <h3 class="text-2xl font-bold text-ep-blue-night mb-2">Bouteilles</h3>
@@ -240,7 +240,7 @@ if ( $slides_query->have_posts() ) :
                 <div class="aspect-[4/3] bg-gray-50 flex items-center justify-center p-12 relative overflow-hidden">
                     <div class="absolute w-64 h-64 bg-ep-blue-night rounded-full filter blur-3xl opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
                     <!-- Bouchons Image -->
-                    <img src="<?php echo esc_url(home_url('/wp-content/uploads/2026/04/bouch.png')); ?>" alt="Catégorie Bouchons" class="w-32 h-32 object-contain group-hover:scale-110 transition-transform duration-500 relative z-10">
+                    <img src="<?php echo esc_url(home_url('/wp-content/uploads/2026/04/bouch.png')); ?>" alt="Catégorie Bouchons" class="group-hover:scale-110 transition-transform duration-500 relative z-10 w-32 h-32 object-contain">
                 </div>
                 <div class="p-8 text-center relative z-20 bg-white">
                     <h3 class="text-2xl font-bold text-ep-blue-night mb-2">Bouchons</h3>
