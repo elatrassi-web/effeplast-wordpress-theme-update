@@ -125,7 +125,7 @@
 </div><!-- #page -->
 
 <!-- WhatsApp Floating Button -->
-<a href="https://wa.me/212537360820" target="_blank" rel="noopener noreferrer" class="fixed bottom-6 left-6 z-[60] w-14 h-14 bg-[#25D366] text-white rounded-full flex items-center justify-center text-3xl shadow-lg shadow-green-500/30 hover:scale-110 hover:-translate-y-1 transition-all duration-300 group ep-hide-print animate-bounce" style="animation-duration: 3s;">
+<a href="https://wa.me/212537360820" target="_blank" rel="noopener noreferrer" class="fixed bottom-6 left-6 z-[60] w-14 h-14 text-white rounded-full flex items-center justify-center text-3xl shadow-lg shadow-green-500/30 hover:scale-110 hover:-translate-y-1 transition-all duration-300 group ep-hide-print animate-bounce" style="animation-duration: 3s; background-color: #25D366;">
     <i class="fab fa-whatsapp"></i>
     <!-- Tooltip -->
     <span class="absolute left-full ml-4 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-gray-900 text-white text-xs font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-md">

@@ -454,7 +454,7 @@ function ep_handle_submit_quote() {
         $body_admin .= '<tr>';
         $body_admin .= '<td style="padding: 10px; border: 1px solid #ddd;">EP-' . esc_html($item['id']) . '</td>';
         $body_admin .= '<td style="padding: 10px; border: 1px solid #ddd;">' . esc_html($item['name']) . '</td>';
-        $body_admin .= '<td style="padding: 10px; border: 1px solid #ddd; text-align: center;">' . esc_html($item['quantity']) . '</td>';
+        $body_admin .= '<td style="padding: 10px; border: 1px solid #ddd; text-align: center;">' . esc_html($item['quantity']) . ' colis</td>';
         $body_admin .= '</tr>';
     }
     $body_admin .= '</tbody></table>';
@@ -642,7 +642,7 @@ function ep_fetch_slider_products() {
                                     data-product-id="<?php the_ID(); ?>"
                                     data-product-name="<?php echo esc_attr(get_the_title()); ?>"
                                     data-product-image="<?php echo esc_url($image_src); ?>"
-                                    data-qty="50">
+                                    data-qty="1">
                                 <i class="fas fa-plus"></i> <span class="btn-text">Au devis</span>
                             </button>
                         </div>
@@ -1146,7 +1146,7 @@ function ep_render_single_devis_view($post_id) {
                         <td><strong>EP-<?php echo esc_html($item['id']); ?></strong></td>
                         <td style="font-weight: 500; color: #1d2327;"><?php echo esc_html($item['name']); ?></td>
                         <td style="text-align: center; font-size: 16px; font-weight: bold; color: #00B4D8;">
-                            <?php echo esc_html($item['quantity']); ?>
+                            <?php echo esc_html($item['quantity']); ?> colis
                         </td>
                         <td style="text-align: center;">
                             <a href="<?php echo get_edit_post_link($item['id']); ?>" target="_blank" class="button button-small">Voir le produit</a>

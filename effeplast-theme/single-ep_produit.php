@@ -131,10 +131,13 @@ if(!empty($colors_meta)) {
                                 <label class="text-xs font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
                                     <i class="fas fa-sort-numeric-up text-ep-cyan"></i> Quantité
                                 </label>
-                                <div class="flex items-center justify-between border-2 border-gray-200 rounded-xl overflow-hidden bg-white h-[52px]">
-                                    <button type="button" id="ep-single-qty-minus" class="w-12 h-full flex items-center justify-center text-gray-500 hover:text-ep-cyan hover:bg-gray-50 focus:outline-none transition-colors"><i class="fas fa-minus text-sm"></i></button>
-                                    <input type="number" id="ep-single-qty" min="50" value="50" class="w-full h-full text-center text-gray-800 font-bold border-x border-gray-200 focus:outline-none appearance-none m-0 p-0 text-lg">
-                                    <button type="button" id="ep-single-qty-plus" class="w-12 h-full flex items-center justify-center text-gray-500 hover:text-ep-cyan hover:bg-gray-50 focus:outline-none transition-colors"><i class="fas fa-plus text-sm"></i></button>
+                                <div class="flex items-center justify-between border-2 border-gray-200 rounded-xl overflow-hidden bg-white h-[52px] relative">
+                                    <button type="button" id="ep-single-qty-minus" class="w-12 h-full flex items-center justify-center text-gray-500 hover:text-ep-cyan hover:bg-gray-50 focus:outline-none transition-colors shrink-0 z-10 bg-white"><i class="fas fa-minus text-sm"></i></button>
+                                    <div class="relative flex-grow h-full flex items-center justify-center border-x border-gray-200">
+                                        <input type="number" id="ep-single-qty" min="1" value="1" class="w-10 h-full text-right text-gray-800 font-bold focus:outline-none appearance-none m-0 p-0 text-lg bg-transparent">
+                                        <span class="text-gray-500 font-medium ml-1 mr-2 pointer-events-none select-none">colis</span>
+                                    </div>
+                                    <button type="button" id="ep-single-qty-plus" class="w-12 h-full flex items-center justify-center text-gray-500 hover:text-ep-cyan hover:bg-gray-50 focus:outline-none transition-colors shrink-0 z-10 bg-white"><i class="fas fa-plus text-sm"></i></button>
                                 </div>
                             </div>
 
@@ -227,7 +230,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if(qtyInput && btnMinus && btnPlus) {
         btnMinus.addEventListener('click', () => {
             let val = parseInt(qtyInput.value);
-            if(val > 50) {
+            if(val > 1) {
                 qtyInput.value = val - 1;
                 updateButtonData();
             }
@@ -240,7 +243,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         qtyInput.addEventListener('change', () => {
-            if(parseInt(qtyInput.value) < 50) qtyInput.value = 50;
+            if(parseInt(qtyInput.value) < 1 || isNaN(parseInt(qtyInput.value))) qtyInput.value = 1;
             updateButtonData();
         });
     }

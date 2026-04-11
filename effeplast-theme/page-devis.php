@@ -192,8 +192,9 @@ get_header();
                                             <div class="ep-cart-status text-[11px] text-ep-cyan mt-1 hidden"><i class="fas fa-check-circle"></i> Dans la liste</div>
                                         </td>
                                         <td class="py-4 px-6">
-                                            <div class="flex justify-center">
-                                                <input type="number" value="50" min="50" class="ep-qty-input w-16 h-10 bg-black/40 text-white text-center font-bold border border-white/10 rounded focus:outline-none focus:border-ep-cyan appearance-none shadow-inner">
+                                            <div class="flex justify-center items-center">
+                                                <input type="number" value="1" min="1" class="ep-qty-input w-12 h-10 bg-black/40 text-white text-right font-bold border-y border-l border-white/10 rounded-l focus:outline-none focus:border-ep-cyan appearance-none shadow-inner pl-2">
+                                                <span class="bg-black/40 text-gray-400 text-xs h-10 flex items-center pr-2 border-y border-r border-white/10 rounded-r select-none pointer-events-none">colis</span>
                                             </div>
                                         </td>
                                         <td class="py-4 px-6 text-center">

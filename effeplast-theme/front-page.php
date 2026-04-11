@@ -292,7 +292,7 @@ if ( $slides_query->have_posts() ) :
                         for($i=0; $i<3; $i++) {
                             foreach($partner_logos as $logo_url) {
                                 ?>
-                                <div class="w-48 md:w-56 lg:w-64 shrink-0 group flex items-center justify-center h-32 md:h-40">
+                                <div class="w-64 md:w-72 lg:w-80 shrink-0 group flex items-center justify-center h-40 md:h-48">
                                     <img src="<?php echo esc_url($logo_url); ?>" alt="Partenaire Effe Plast" class="w-full h-full object-contain opacity-80 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-300 hover:scale-110 cursor-pointer mix-blend-multiply">
                                 </div>
                                 <?php

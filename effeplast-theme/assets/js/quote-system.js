@@ -18,7 +18,7 @@ const QuoteSystem = {
     },
 
     // Add item to cart
-    addItem: function(id, name, image, quantity = 50, color = '') {
+    addItem: function(id, name, image, quantity = 1, color = '') {
         let cart = this.getCart();
         // Use a unique key based on ID + Color so the same product with different colors can be added
         let uniqueId = color ? `${id}-${color}` : id;
@@ -209,12 +209,12 @@ const QuoteSystem = {
                 let productName = btn.getAttribute('data-product-name');
                 let productImage = btn.getAttribute('data-product-image');
 
-                // Find quantity input (use data-qty attribute if present, otherwise look for input, fallback to 50)
+                // Find quantity input (use data-qty attribute if present, otherwise look for input, fallback to 1)
                 let quantity = btn.getAttribute('data-qty');
                 if(!quantity) {
                     let row = btn.closest('tr') || btn.closest('.product-card') || btn.closest('.swiper-slide');
                     let qtyInput = row ? row.querySelector('.ep-qty-input') : null;
-                    quantity = qtyInput ? qtyInput.value : 50;
+                    quantity = qtyInput ? qtyInput.value : 1;
                 }
 
                 self.addItem(productId, productName, productImage, quantity, color);
